@@ -1,8 +1,6 @@
 use std::collections::HashMap;
-use chrono::Utc;
 use sha2::{Digest, Sha256};
 use crate::{AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop, AtlasTracerouteReply, IrisReply, IrisTraceroute};
-
 
 
 fn id_from_string(s: &str) -> u64 {
@@ -76,5 +74,40 @@ impl IrisReply {
             ttl: self.2,
             icmpext,
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use std::net::Ipv6Addr;
+    use std::str::FromStr;
+    use chrono::{TimeZone, Utc};
+    use crate::{IrisMplsEntry, IrisReply};
+
+    #[test]
+    fn to_atlas_reply() {
+        let iris_reply = IrisReply(
+            Utc.ymd(2022, 3, 1).and_hms(1,2,3),
+            1,
+            255,
+            42,
+            vec![IrisMplsEntry(1,2,3,4)],
+            Ipv6Addr::from_str("2001:db8::1").unwrap(),
+            4.2
+        );
+        let atlas_reply = iris_reply.to_atlas_reply();
+        assert_eq!(atlas_reply.from, Ipv6Addr::from_str("2001:db8::1").unwrap());
+        assert_eq!(atlas_reply.rtt, 4.2);
+        assert_eq!(atlas_reply.size, 42);
+        assert_eq!(atlas_reply.ttl, 255);
+        assert_eq!(atlas_reply.icmpext[0].version, 2);
+        assert_eq!(atlas_reply.icmpext[0].rfc4884, 1);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].class, 1);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].kind, 1);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].mpls[0].label, 1);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].mpls[0].exp, 2);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].mpls[0].s, 3);
+        assert_eq!(atlas_reply.icmpext[0].obj[0].mpls[0].ttl, 4);
     }
 }

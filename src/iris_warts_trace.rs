@@ -1,4 +1,4 @@
-use warts::{Address, Flags, Object, TraceProbe, Traceroute, TraceStopReason, TraceType};
+use warts::{Address, TraceProbe, Traceroute, TraceStopReason, TraceType};
 use crate::{IrisReply, IrisTraceroute};
 
 impl IrisTraceroute {
