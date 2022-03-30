@@ -1,6 +1,6 @@
 [package]
 name = "iris-converters"
-version = "0.1.0"
+version = "0.1.1"
 description = "Convert Iris measurement data to RIPE Atlas, Scamper, etc. formats."
 license = "MIT"
 authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
