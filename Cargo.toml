@@ -1,0 +1,16 @@
+[package]
+name = "iris-converters"
+version = "0.1.0"
+description = "Convert Iris measurement data to RIPE Atlas, Scamper, etc. formats."
+license = "MIT"
+authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
+repository = "https://github.com/dioptra-io/iris-converters/"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+deku = "0.12.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10.2"
+warts = "0.2"
