@@ -1,7 +1,7 @@
 #![feature(stdin_forwarders)]
 
 use clap::{ArgEnum, Parser};
-use iris_converters::convertable::PantraceFormat;
+use iris_converters::format::PantraceFormat;
 use iris_converters::{AtlasTraceroute, IrisTraceroute, TracerouteReply};
 use std::io;
 use std::io::Write;
@@ -32,35 +32,58 @@ fn main() {
     let args = Args::parse();
     let lines = io::stdin().lines();
     let mut internal: Vec<TracerouteReply>;
+    // TODO: Iterate on bytes instead? (for Ark)
+    //   Or make from_bytes return the rest?
+    // TODO: AtlasTraceroute => atlas::Traceroute?
     for line in lines {
-        // TODO: Optimize
+        println!("{}", line.as_ref().unwrap());
         match args.from {
             Format::Atlas => {
-                let atlas_t: AtlasTraceroute =
-                    serde_json::from_str(line.as_ref().unwrap()).unwrap();
-                internal = atlas_t.to_internal();
+                internal = AtlasTraceroute::from_bytes(line.unwrap().as_bytes())
+                    .unwrap()
+                    .to_internal();
             }
             Format::Iris => {
-                let iris_t: IrisTraceroute = serde_json::from_str(line.as_ref().unwrap()).unwrap();
-                internal = iris_t.to_internal();
+                internal = IrisTraceroute::from_bytes(line.unwrap().as_bytes())
+                    .unwrap()
+                    .to_internal();
             }
             Format::Warts => {
-                todo!()
+                internal = Traceroute::from_bytes(line.unwrap().as_bytes())
+                    .unwrap()
+                    .to_internal();
             }
         }
         match args.to {
-            // TODO: Dispatch on PantraceFormat instead of match?
             Format::Atlas => {
-                let t = AtlasTraceroute::from_internal(&internal).unwrap();
-                io::stdout().write_all(t.to_bytes().as_slice()).unwrap();
+                io::stdout()
+                    .write_all(
+                        AtlasTraceroute::from_internal(&internal)
+                            .unwrap()
+                            .to_bytes()
+                            .as_slice(),
+                    )
+                    .unwrap();
             }
             Format::Iris => {
-                let t = IrisTraceroute::from_internal(&internal).unwrap();
-                io::stdout().write_all(t.to_bytes().as_slice()).unwrap();
+                io::stdout()
+                    .write_all(
+                        IrisTraceroute::from_internal(&internal)
+                            .unwrap()
+                            .to_bytes()
+                            .as_slice(),
+                    )
+                    .unwrap();
             }
             Format::Warts => {
-                let t = Traceroute::from_internal(&internal).unwrap();
-                io::stdout().write_all(t.to_bytes().as_slice()).unwrap();
+                io::stdout()
+                    .write_all(
+                        Traceroute::from_internal(&internal)
+                            .unwrap()
+                            .to_bytes()
+                            .as_slice(),
+                    )
+                    .unwrap();
             }
         }
     }

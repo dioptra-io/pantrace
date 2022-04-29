@@ -2,7 +2,7 @@
 #![feature(slice_group_by)]
 
 mod atlas;
-pub mod convertable;
+pub mod format;
 mod internal;
 mod iris;
 mod warts;

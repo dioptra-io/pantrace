@@ -1,9 +1,18 @@
-use crate::convertable::PantraceFormat;
+use crate::format::PantraceFormat;
 use crate::TracerouteReply;
 use deku::DekuContainerWrite;
 use warts::{Address, Object, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
 impl PantraceFormat for Traceroute {
+    fn from_bytes(_data: &[u8]) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        todo!()
+    }
+    fn to_bytes(self) -> Vec<u8> {
+        Object::Traceroute(self).to_bytes().unwrap()
+    }
     fn from_internal(replies: &[TracerouteReply]) -> Option<Self>
     where
         Self: Sized,
@@ -59,9 +68,6 @@ impl PantraceFormat for Traceroute {
 
     fn to_internal(&self) -> Vec<TracerouteReply> {
         todo!()
-    }
-    fn to_bytes(self) -> Vec<u8> {
-        Object::Traceroute(self).to_bytes().unwrap()
     }
 }
 
