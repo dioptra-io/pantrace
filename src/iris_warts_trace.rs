@@ -1,5 +1,5 @@
-use warts::{Address, TraceProbe, Traceroute, TraceStopReason, TraceType};
 use crate::{IrisReply, IrisTraceroute};
+use warts::{Address, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
 impl IrisTraceroute {
     pub fn to_warts_trace(&self) -> Traceroute {
@@ -38,7 +38,11 @@ impl IrisTraceroute {
             ip_offset: None,
             router_addr: None,
             hop_count: self.replies.len() as u16,
-            hops: self.replies.iter().map(|reply| reply.to_warts_trace_probe()).collect(),
+            hops: self
+                .replies
+                .iter()
+                .map(|reply| reply.to_warts_trace_probe())
+                .collect(),
             eof: 0,
         };
         t.fixup();

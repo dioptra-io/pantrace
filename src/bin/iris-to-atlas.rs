@@ -1,7 +1,7 @@
 #![feature(stdin_forwarders)]
 
-use std::io;
 use iris_converters::IrisTraceroute;
+use std::io;
 
 fn main() {
     let lines = io::stdin().lines();

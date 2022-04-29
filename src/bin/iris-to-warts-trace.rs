@@ -2,12 +2,12 @@
 
 extern crate core;
 
+use chrono::Utc;
+use deku::DekuContainerWrite;
+use iris_converters::IrisTraceroute;
 use std::ffi::CString;
 use std::io;
 use std::io::Write;
-use chrono::Utc;
-use iris_converters::IrisTraceroute;
-use deku::DekuContainerWrite;
 use warts::{CycleStart, CycleStop, List, Object};
 
 fn main() {
