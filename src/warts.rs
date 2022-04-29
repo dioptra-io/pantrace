@@ -3,7 +3,7 @@ use crate::TracerouteReply;
 use chrono::{Duration, TimeZone, Utc};
 use deku::DekuContainerWrite;
 use std::net::Ipv6Addr;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 use warts::{Address, Object, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
 impl PantraceFormat for Traceroute {
@@ -82,6 +82,13 @@ impl PantraceFormat for Traceroute {
 }
 
 fn warts_trace_probe_from_internal(reply: &TracerouteReply) -> TraceProbe {
+    let rtt_usec = (reply.rtt * 1000.0) as u32;
+    let tx = Timeval::from(
+        reply
+            .capture_timestamp
+            .sub(Duration::microseconds(rtt_usec as i64))
+            .naive_utc(),
+    );
     let mut tp = TraceProbe {
         flags: Default::default(),
         param_length: None,
@@ -90,7 +97,7 @@ fn warts_trace_probe_from_internal(reply: &TracerouteReply) -> TraceProbe {
         reply_ttl: Some(reply.reply_ttl),
         hop_flags: None, // TODO
         probe_id: None,
-        rtt_usec: Some((reply.rtt * 1000.0) as u32),
+        rtt_usec: Some(rtt_usec),
         icmp_type: Some(11),
         icmp_code: Some(0),
         probe_size: None,
@@ -105,7 +112,7 @@ fn warts_trace_probe_from_internal(reply: &TracerouteReply) -> TraceProbe {
         icmp_extensions_length: None,
         icmp_extensions: vec![], // TODO
         addr: Some(Address::from(reply.reply_src_addr)),
-        tx: None, // TODO: Substract rtt from capture_timestamp
+        tx: Some(tx),
     };
     tp.fixup();
     tp
