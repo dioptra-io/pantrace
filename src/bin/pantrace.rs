@@ -1,10 +1,9 @@
 #![feature(stdin_forwarders)]
 
-use std::io;
 use clap::Parser;
-use warts::Traceroute;
-use iris_converters::{AtlasTraceroute, IrisTraceroute};
 use iris_converters::convertable::Convertable;
+use iris_converters::{AtlasTraceroute, IrisTraceroute};
+use std::io;
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]

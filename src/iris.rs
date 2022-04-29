@@ -1,8 +1,8 @@
+use crate::convertable::Convertable;
 use crate::{MplsEntry, TracerouteReply};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::net::Ipv6Addr;
-use crate::convertable::Convertable;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisTraceroute {
@@ -24,20 +24,20 @@ pub struct IrisMultipathTraceroute {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisReply(
-    pub DateTime<Utc>, // capture_timestamp
-    pub u8, // probe_ttl
-    pub u8, // reply_ttl
-    pub u16, // reply_size
+    pub DateTime<Utc>,      // capture_timestamp
+    pub u8,                 // probe_ttl
+    pub u8,                 // reply_ttl
+    pub u16,                // reply_size
     pub Vec<IrisMplsEntry>, // mpls_labels
-    pub Ipv6Addr, // reply_src_addr
+    pub Ipv6Addr,           // reply_src_addr
     pub f64,                // rtt
 );
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisMplsEntry(
     pub u32, // label
-    pub u8, // exp
-    pub u8, // bottom-of-stack
+    pub u8,  // exp
+    pub u8,  // bottom-of-stack
     pub u8,  // ttl
 );
 
@@ -72,13 +72,16 @@ impl Convertable for IrisTraceroute {
     fn to_internal(&self) -> Vec<TracerouteReply> {
         self.replies
             .iter()
-            .map(|reply| reply.to_internal(
-                self.probe_protocol,
-                self.probe_src_addr,
-                self.probe_dst_addr,
-                self.probe_src_port,
-                self.probe_dst_port,
-            )).collect()
+            .map(|reply| {
+                reply.to_internal(
+                    self.probe_protocol,
+                    self.probe_src_addr,
+                    self.probe_dst_addr,
+                    self.probe_src_port,
+                    self.probe_dst_port,
+                )
+            })
+            .collect()
     }
 }
 

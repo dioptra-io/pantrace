@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use crate::convertable::Convertable;
+use crate::{MplsEntry, TracerouteReply};
 use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::net::Ipv6Addr;
-use crate::{MplsEntry, TracerouteReply};
-use crate::convertable::Convertable;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AtlasTraceroute {
@@ -85,9 +85,8 @@ impl Convertable for AtlasTraceroute {
                 proto: "".to_string(),
                 result: replies
                     .group_by(|a, b| a.probe_ttl == b.probe_ttl)
-                    .map(|rs| {
-                        AtlasTracerouteHop::from_internal(rs)
-                    }).collect(),
+                    .map(AtlasTracerouteHop::from_internal)
+                    .collect(),
                 size: 0,
                 src_addr: replies[0].probe_src_addr,
                 timestamp: Utc::now(), // TODO
@@ -96,9 +95,10 @@ impl Convertable for AtlasTraceroute {
         }
     }
     fn to_internal(&self) -> Vec<TracerouteReply> {
-        self.result.iter().map(|result| {
-            result.to_internal(&self.proto, self.src_addr, self.dst_addr)
-        }).flatten().collect()
+        self.result
+            .iter()
+            .flat_map(|result| result.to_internal(&self.proto, self.src_addr, self.dst_addr))
+            .collect()
     }
 }
 
@@ -107,13 +107,22 @@ impl AtlasTracerouteHop {
         // TODO: assert same-hop assumption?
         AtlasTracerouteHop {
             hop: 0, // TODO
-            result: replies.iter().map(AtlasTracerouteReply::from_internal).collect(),
+            result: replies
+                .iter()
+                .map(AtlasTracerouteReply::from_internal)
+                .collect(),
         }
     }
-    pub fn to_internal(&self, proto: &str, src_addr: Ipv6Addr, dst_addr: Ipv6Addr) -> Vec<TracerouteReply> {
-        self.result.iter().map(|result| {
-            result.to_internal(proto, src_addr, dst_addr)
-        }).collect()
+    pub fn to_internal(
+        &self,
+        proto: &str,
+        src_addr: Ipv6Addr,
+        dst_addr: Ipv6Addr,
+    ) -> Vec<TracerouteReply> {
+        self.result
+            .iter()
+            .map(|result| result.to_internal(proto, src_addr, dst_addr))
+            .collect()
     }
 }
 
@@ -127,20 +136,29 @@ impl AtlasTracerouteReply {
             icmpext: vec![AtlasIcmpExt::from_internal(&reply.mpls_labels)],
         }
     }
-    pub fn to_internal(&self, proto: &str, src_addr: Ipv6Addr, dst_addr: Ipv6Addr) -> TracerouteReply {
+    pub fn to_internal(
+        &self,
+        proto: &str,
+        src_addr: Ipv6Addr,
+        dst_addr: Ipv6Addr,
+    ) -> TracerouteReply {
         // TODO: const hashmap?
         let protocols = HashMap::from([("icmp", 1), ("udp", 17), ("icmp6", 58)]);
         TracerouteReply {
             probe_protocol: protocols[proto],
             probe_src_addr: src_addr,
             probe_dst_addr: dst_addr,
-            probe_src_port: 0, // TODO
-            probe_dst_port: 0, // TODO
+            probe_src_port: 0,             // TODO
+            probe_dst_port: 0,             // TODO
             catpure_timestamp: Utc::now(), // TODO
-            probe_ttl: 0, // TODO
+            probe_ttl: 0,                  // TODO
             reply_ttl: self.ttl,
             reply_size: self.size,
-            mpls_labels: self.icmpext.iter().map(|ext| ext.to_internal()).flatten().collect(),
+            mpls_labels: self
+                .icmpext
+                .iter()
+                .flat_map(|ext| ext.to_internal())
+                .collect(),
             reply_src_addr: self.from,
             rtt: self.rtt,
         }
@@ -166,12 +184,18 @@ impl AtlasIcmpExtObj {
         AtlasIcmpExtObj {
             class: 1,
             kind: 1,
-            mpls: entries.iter().map(AtlasIcmpExtMplsData::from_internal).collect(),
+            mpls: entries
+                .iter()
+                .map(AtlasIcmpExtMplsData::from_internal)
+                .collect(),
         }
     }
     pub fn to_internal(&self) -> Vec<MplsEntry> {
         // TODO: Assert class/kind?
-        self.mpls.iter().map(AtlasIcmpExtMplsData::to_internal).collect()
+        self.mpls
+            .iter()
+            .map(AtlasIcmpExtMplsData::to_internal)
+            .collect()
     }
 }
 

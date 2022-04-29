@@ -1,9 +1,12 @@
-use warts::{Address, TraceProbe, Traceroute, TraceStopReason, TraceType};
-use crate::{TracerouteReply};
 use crate::convertable::Convertable;
+use crate::TracerouteReply;
+use warts::{Address, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
 impl Convertable for Traceroute {
-    fn from_internal(replies: &[TracerouteReply]) -> Option<Self> where Self: Sized {
+    fn from_internal(replies: &[TracerouteReply]) -> Option<Self>
+    where
+        Self: Sized,
+    {
         if replies.is_empty() {
             None
         } else {
@@ -42,7 +45,10 @@ impl Convertable for Traceroute {
                 ip_offset: None,
                 router_addr: None,
                 hop_count: replies.len() as u16,
-                hops: replies.iter().map(warts_trace_probe_from_internal).collect(),
+                hops: replies
+                    .iter()
+                    .map(warts_trace_probe_from_internal)
+                    .collect(),
                 eof: 0,
             };
             t.fixup();
