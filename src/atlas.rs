@@ -1,9 +1,10 @@
 use crate::format::PantraceFormat;
 use crate::{MplsEntry, TracerouteReply};
 use chrono::serde::ts_seconds;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use sha2::Digest;
+use sha2::Sha256;
 use std::net::{IpAddr, Ipv6Addr};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -80,37 +81,46 @@ impl PantraceFormat for AtlasTraceroute {
     fn to_bytes(self) -> Vec<u8> {
         serde_json::to_vec(&self).unwrap()
     }
-    fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
-        // TODO: Assert same-flow assumption.
-        if replies.is_empty() {
-            None
-        } else {
-            Some(AtlasTraceroute {
-                af: replies[0].af(),
-                dst_addr: IpAddr::from(replies[0].probe_dst_addr),
-                dst_name: "".to_string(),
-                endtime: Utc::now(), // TODO
-                from: IpAddr::from(replies[0].probe_src_addr),
-                msm_id: 0,
-                msm_name: "".to_string(),
-                paris_id: 0,
-                prb_id: 0,
-                proto: "".to_string(),
-                result: replies
-                    .group_by(|a, b| a.probe_ttl == b.probe_ttl)
-                    .map(AtlasTracerouteHop::from_internal)
-                    .collect(),
-                size: 0,
-                src_addr: IpAddr::from(replies[0].probe_src_addr),
-                timestamp: Utc::now(), // TODO
-                kind: "".to_string(),
-            })
+    fn from_internal(replies: &[TracerouteReply]) -> Self {
+        // TODO: assert same-flow assumption?
+        let ref_reply = &replies[0];
+        let start_timestamp = replies
+            .iter()
+            .map(|reply| reply.capture_timestamp)
+            .min()
+            .unwrap();
+        let end_timestamp = replies
+            .iter()
+            .map(|reply| reply.capture_timestamp)
+            .max()
+            .unwrap();
+        AtlasTraceroute {
+            af: ref_reply.af(),
+            dst_addr: IpAddr::from(ref_reply.probe_dst_addr),
+            dst_name: ref_reply.probe_dst_addr.to_string(),
+            endtime: end_timestamp,
+            from: IpAddr::from(ref_reply.probe_src_addr),
+            msm_id: id_from_string("TODO"),
+            msm_name: "TODO".to_string(),
+            paris_id: ref_reply.probe_src_port,
+            prb_id: id_from_string("TODO"),
+            proto: protocol_string(ref_reply.probe_protocol),
+            result: replies
+                .group_by(|a, b| a.probe_ttl == b.probe_ttl)
+                .map(AtlasTracerouteHop::from_internal)
+                .collect(),
+            size: 0, // TODO
+            src_addr: IpAddr::from(ref_reply.probe_src_addr),
+            timestamp: start_timestamp,
+            kind: "traceroute".to_string(),
         }
     }
     fn to_internal(&self) -> Vec<TracerouteReply> {
         self.result
             .iter()
-            .flat_map(|result| result.to_internal(&self.proto, self.src_addr, self.dst_addr))
+            .flat_map(|result| {
+                result.to_internal(&self.proto, self.src_addr, self.dst_addr, self.paris_id)
+            })
             .collect()
     }
 }
@@ -118,8 +128,9 @@ impl PantraceFormat for AtlasTraceroute {
 impl AtlasTracerouteHop {
     pub fn from_internal(replies: &[TracerouteReply]) -> Self {
         // TODO: assert same-hop assumption?
+        let ref_reply = &replies[0];
         AtlasTracerouteHop {
-            hop: 0, // TODO
+            hop: ref_reply.probe_ttl,
             result: replies
                 .iter()
                 .map(AtlasTracerouteReply::from_internal)
@@ -131,10 +142,11 @@ impl AtlasTracerouteHop {
         proto: &str,
         src_addr: IpAddr,
         dst_addr: IpAddr,
+        paris_id: u16,
     ) -> Vec<TracerouteReply> {
         self.result
             .iter()
-            .map(|result| result.to_internal(proto, src_addr, dst_addr))
+            .map(|result| result.to_internal(proto, src_addr, dst_addr, paris_id, self.hop))
             .collect()
     }
 }
@@ -145,21 +157,27 @@ impl AtlasTracerouteReply {
             from: Some(IpAddr::from(reply.reply_src_addr)),
             rtt: reply.rtt,
             size: reply.reply_size,
-            ttl: reply.probe_ttl,
+            ttl: reply.reply_ttl,
             icmpext: vec![AtlasIcmpExt::from_internal(&reply.mpls_labels)],
         }
     }
-    pub fn to_internal(&self, proto: &str, src_addr: IpAddr, dst_addr: IpAddr) -> TracerouteReply {
-        // TODO: const hashmap?
-        let protocols = HashMap::from([("ICMP", 1), ("UDP", 17), ("ICMP6", 58)]);
+    pub fn to_internal(
+        &self,
+        proto: &str,
+        src_addr: IpAddr,
+        dst_addr: IpAddr,
+        paris_id: u16,
+        hop: u8,
+    ) -> TracerouteReply {
         TracerouteReply {
-            probe_protocol: protocols[proto],
+            probe_protocol: protocol_number(proto),
             probe_src_addr: ipv6_from_ip(src_addr),
             probe_dst_addr: ipv6_from_ip(dst_addr),
-            probe_src_port: 0,             // TODO
-            probe_dst_port: 0,             // TODO
-            catpure_timestamp: Utc::now(), // TODO
-            probe_ttl: 0,                  // TODO
+            probe_src_port: paris_id,
+            probe_dst_port: 0,
+            // Atlas does not store capture timestamp.
+            capture_timestamp: Utc.timestamp(0, 0),
+            probe_ttl: hop,
             reply_ttl: self.ttl,
             reply_size: self.size,
             mpls_labels: self
@@ -231,5 +249,30 @@ fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {
     match addr {
         IpAddr::V4(x) => x.to_ipv6_mapped(),
         IpAddr::V6(x) => x,
+    }
+}
+
+fn id_from_string(s: &str) -> u64 {
+    let mut hasher = Sha256::new();
+    hasher.update(s);
+    let result = hasher.finalize();
+    u64::from_le_bytes(result.as_slice()[..8].try_into().unwrap())
+}
+
+fn protocol_number(s: &str) -> u8 {
+    match s {
+        "ICMP" => 1,
+        "ICMP6" => 58,
+        "UDP" => 17,
+        _ => panic!("Unsupported protocol"),
+    }
+}
+
+fn protocol_string(n: u8) -> String {
+    match n {
+        1 => String::from("ICMP"),
+        17 => String::from("UDP"),
+        58 => String::from("ICMP6"),
+        _ => panic!("Unsupported protocol"),
     }
 }

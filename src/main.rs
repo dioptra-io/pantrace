@@ -23,7 +23,7 @@ struct Args {
     /// Output format.
     #[clap(short, long, arg_enum)]
     to: Format,
-    /// Output start/end markers (e.g. Warts CycleStart/CycleStop)
+    /// Output start/end markers (e.g. Warts CycleStart/CycleStop).
     #[clap(short, long)]
     standalone: bool,
 }
@@ -34,7 +34,6 @@ fn main() {
     let mut internal: Vec<TracerouteReply>;
     // TODO: Iterate on bytes instead? (for Ark)
     //   Or make from_bytes return the rest?
-    // TODO: AtlasTraceroute => atlas::Traceroute?
     for line in lines {
         println!("{}", line.as_ref().unwrap());
         match args.from {
@@ -59,7 +58,6 @@ fn main() {
                 io::stdout()
                     .write_all(
                         AtlasTraceroute::from_internal(&internal)
-                            .unwrap()
                             .to_bytes()
                             .as_slice(),
                     )
@@ -69,7 +67,6 @@ fn main() {
                 io::stdout()
                     .write_all(
                         IrisTraceroute::from_internal(&internal)
-                            .unwrap()
                             .to_bytes()
                             .as_slice(),
                     )
@@ -77,12 +74,7 @@ fn main() {
             }
             Format::Warts => {
                 io::stdout()
-                    .write_all(
-                        Traceroute::from_internal(&internal)
-                            .unwrap()
-                            .to_bytes()
-                            .as_slice(),
-                    )
+                    .write_all(Traceroute::from_internal(&internal).to_bytes().as_slice())
                     .unwrap();
             }
         }

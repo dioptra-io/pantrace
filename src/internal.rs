@@ -1,13 +1,14 @@
 use chrono::{DateTime, Utc};
 use std::net::Ipv6Addr;
 
+#[derive(Debug, PartialEq)]
 pub struct TracerouteReply {
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,
     pub probe_src_port: u16,
     pub probe_dst_port: u16,
-    pub catpure_timestamp: DateTime<Utc>,
+    pub capture_timestamp: DateTime<Utc>,
     pub probe_ttl: u8,
     pub reply_ttl: u8,
     pub reply_size: u16,
@@ -16,6 +17,7 @@ pub struct TracerouteReply {
     pub rtt: f64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct MplsEntry {
     pub label: u32,
     pub exp: u8,

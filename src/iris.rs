@@ -41,17 +41,6 @@ pub struct IrisMplsEntry(
     pub u8,  // ttl
 );
 
-impl IrisTraceroute {
-    // TODO: Move to internal?
-    pub fn af(&self) -> u8 {
-        if self.probe_dst_addr.to_ipv4_mapped().is_some() {
-            4
-        } else {
-            6
-        }
-    }
-}
-
 impl PantraceFormat for IrisTraceroute {
     fn from_bytes(data: &[u8]) -> Option<Self>
     where
@@ -62,22 +51,19 @@ impl PantraceFormat for IrisTraceroute {
     fn to_bytes(self) -> Vec<u8> {
         serde_json::to_vec(&self).unwrap()
     }
-    fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
-        // NOTE: We assume that the replies are from a single flow.
-        // TODO: Assert this?
-        if replies.is_empty() {
-            None
-        } else {
-            Some(IrisTraceroute {
-                probe_protocol: replies[0].probe_protocol,
-                probe_src_addr: replies[0].probe_src_addr,
-                probe_dst_addr: replies[0].probe_dst_addr,
-                probe_src_port: replies[0].probe_src_port,
-                probe_dst_port: replies[0].probe_dst_port,
-                replies: replies.iter().map(IrisReply::from_internal).collect(),
-            })
+    fn from_internal(replies: &[TracerouteReply]) -> Self {
+        // TODO: We assume that the replies are from a single flow.
+        //   => Assert this?
+        IrisTraceroute {
+            probe_protocol: replies[0].probe_protocol,
+            probe_src_addr: replies[0].probe_src_addr,
+            probe_dst_addr: replies[0].probe_dst_addr,
+            probe_src_port: replies[0].probe_src_port,
+            probe_dst_port: replies[0].probe_dst_port,
+            replies: replies.iter().map(IrisReply::from_internal).collect(),
         }
     }
+
     fn to_internal(&self) -> Vec<TracerouteReply> {
         self.replies
             .iter()
@@ -97,7 +83,7 @@ impl PantraceFormat for IrisTraceroute {
 impl IrisReply {
     pub fn from_internal(reply: &TracerouteReply) -> Self {
         IrisReply(
-            reply.catpure_timestamp,
+            reply.capture_timestamp,
             reply.probe_ttl,
             reply.reply_ttl,
             reply.reply_size,
@@ -124,7 +110,7 @@ impl IrisReply {
             probe_dst_addr,
             probe_src_port,
             probe_dst_port,
-            catpure_timestamp: self.0,
+            capture_timestamp: self.0,
             probe_ttl: self.1,
             reply_ttl: self.2,
             reply_size: self.3,

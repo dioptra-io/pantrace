@@ -7,7 +7,7 @@ pub trait PantraceFormat {
     fn to_bytes(self) -> Vec<u8>;
     // TODO: Default impl. where we assert flow consistency?
     //   => checked/unchecked versions?
-    fn from_internal(replies: &[TracerouteReply]) -> Option<Self>
+    fn from_internal(replies: &[TracerouteReply]) -> Self
     where
         Self: Sized;
     fn to_internal(&self) -> Vec<TracerouteReply>;
