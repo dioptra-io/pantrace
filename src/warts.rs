@@ -1,7 +1,10 @@
 use crate::format::PantraceFormat;
 use crate::TracerouteReply;
+use chrono::{Duration, TimeZone, Utc};
 use deku::DekuContainerWrite;
-use warts::{Address, Object, TraceProbe, TraceStopReason, TraceType, Traceroute};
+use std::net::Ipv6Addr;
+use std::ops::Add;
+use warts::{Address, Object, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
 impl PantraceFormat for Traceroute {
     fn from_bytes(_data: &[u8]) -> Option<Self>
@@ -61,9 +64,20 @@ impl PantraceFormat for Traceroute {
         t.fixup();
         t
     }
-
     fn to_internal(&self) -> Vec<TracerouteReply> {
-        todo!()
+        self.hops
+            .iter()
+            .map(|tp| {
+                warts_trace_probe_to_internal(
+                    tp,
+                    self.trace_type.as_ref(),
+                    self.src_addr,
+                    self.dst_addr,
+                    self.src_port,
+                    self.dst_port,
+                )
+            })
+            .collect()
     }
 }
 
@@ -95,4 +109,55 @@ fn warts_trace_probe_from_internal(reply: &TracerouteReply) -> TraceProbe {
     };
     tp.fixup();
     tp
+}
+
+fn warts_trace_probe_to_internal(
+    tp: &TraceProbe,
+    trace_type: Option<&TraceType>,
+    src_addr: Option<Address>,
+    dst_addr: Option<Address>,
+    src_port: Option<u16>,
+    dst_port: Option<u16>,
+) -> TracerouteReply {
+    let tx = tp.tx.as_ref().unwrap_or(&Timeval {
+        seconds: 0,
+        microseconds: 0,
+    });
+    let capture_timestamp = Utc
+        .timestamp(tx.seconds as i64, tx.microseconds * 1000)
+        .add(Duration::microseconds(tp.rtt_usec.unwrap_or(0) as i64));
+    TracerouteReply {
+        probe_protocol: trace_type.map_or(0, protocol_number),
+        probe_src_addr: src_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
+        probe_dst_addr: dst_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
+        probe_src_port: src_port.unwrap_or(0),
+        probe_dst_port: dst_port.unwrap_or(0),
+        capture_timestamp,
+        probe_ttl: tp.probe_ttl.unwrap_or(0),
+        reply_ttl: tp.reply_ttl.unwrap_or(0),
+        reply_size: tp.reply_size.unwrap_or(0),
+        mpls_labels: vec![], // TODO
+        reply_src_addr: tp.addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
+        rtt: (tp.rtt_usec.unwrap_or(0) as f64) / 1000.0,
+    }
+}
+
+fn ipv6_from_address(addr: Address) -> Ipv6Addr {
+    match addr {
+        Address::IPv4(_, x) => x.to_ipv6_mapped(),
+        Address::IPv6(_, x) => x,
+        _ => panic!("Unsupported address type"),
+    }
+}
+
+fn protocol_number(trace_type: &TraceType) -> u8 {
+    // TODO: IPv6
+    match trace_type {
+        TraceType::ICMPEcho => 1,
+        TraceType::UDP => 17,
+        TraceType::TCP => 6,
+        TraceType::ICMPEchoParis => 1,
+        TraceType::UDPParis => 17,
+        TraceType::TCPAck => 6,
+    }
 }

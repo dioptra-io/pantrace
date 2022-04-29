@@ -48,6 +48,7 @@ fn main() {
                     .to_internal();
             }
             Format::Warts => {
+                // TODO: Dereference addresses.
                 internal = Traceroute::from_bytes(line.unwrap().as_bytes())
                     .unwrap()
                     .to_internal();

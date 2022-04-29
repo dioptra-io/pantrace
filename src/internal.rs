@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use std::net::Ipv6Addr;
 
+// TODO: Store information about the flow ID (src-port, dst-port, ...)
 #[derive(Debug, PartialEq)]
 pub struct TracerouteReply {
     pub probe_protocol: u8,

@@ -52,8 +52,6 @@ impl PantraceFormat for IrisTraceroute {
         serde_json::to_vec(&self).unwrap()
     }
     fn from_internal(replies: &[TracerouteReply]) -> Self {
-        // TODO: We assume that the replies are from a single flow.
-        //   => Assert this?
         IrisTraceroute {
             probe_protocol: replies[0].probe_protocol,
             probe_src_addr: replies[0].probe_src_addr,
