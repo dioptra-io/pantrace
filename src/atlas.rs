@@ -1,4 +1,4 @@
-use crate::convertable::Convertable;
+use crate::convertable::PantraceFormat;
 use crate::{MplsEntry, TracerouteReply};
 use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
@@ -66,7 +66,7 @@ pub struct AtlasIcmpExtMplsData {
     pub ttl: u8,
 }
 
-impl Convertable for AtlasTraceroute {
+impl PantraceFormat for AtlasTraceroute {
     fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
         // TODO: Assert same-flow assumption.
         if replies.is_empty() {
@@ -99,6 +99,9 @@ impl Convertable for AtlasTraceroute {
             .iter()
             .flat_map(|result| result.to_internal(&self.proto, self.src_addr, self.dst_addr))
             .collect()
+    }
+    fn to_bytes(self) -> Vec<u8> {
+        serde_json::to_vec(&self).unwrap()
     }
 }
 

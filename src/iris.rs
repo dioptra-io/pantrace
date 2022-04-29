@@ -1,4 +1,4 @@
-use crate::convertable::Convertable;
+use crate::convertable::PantraceFormat;
 use crate::{MplsEntry, TracerouteReply};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -52,7 +52,7 @@ impl IrisTraceroute {
     }
 }
 
-impl Convertable for IrisTraceroute {
+impl PantraceFormat for IrisTraceroute {
     fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
         // NOTE: We assume that the replies are from a single flow.
         // TODO: Assert this?
@@ -82,6 +82,9 @@ impl Convertable for IrisTraceroute {
                 )
             })
             .collect()
+    }
+    fn to_bytes(self) -> Vec<u8> {
+        serde_json::to_vec(&self).unwrap()
     }
 }
 
