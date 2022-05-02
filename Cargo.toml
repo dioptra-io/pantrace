@@ -1,6 +1,6 @@
 [package]
 name = "pantrace"
-version = "0.1.1"
+version = "0.2.0"
 description = "Convert between traceroute formats."
 license = "MIT"
 authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
