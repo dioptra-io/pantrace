@@ -1,12 +1,11 @@
 use chrono::Utc;
 use pantrace::format::PantraceFormat;
-use pantrace::{AtlasTraceroute, IrisTraceroute, MplsEntry, TracerouteReply};
+use pantrace::{IrisTraceroute, MplsEntry, TracerouteReply};
 use std::net::Ipv6Addr;
 use std::str::FromStr;
-use warts::Traceroute;
 
 #[test]
-fn test() {
+fn test_iris() {
     let mut replies = Vec::new();
     replies.push(TracerouteReply {
         probe_protocol: 1,
@@ -27,5 +26,8 @@ fn test() {
         reply_src_addr: Ipv6Addr::from_str("2001:db8::3").unwrap(),
         rtt: 3.14,
     });
-    assert_eq!(replies, Traceroute::from_internal(&replies).to_internal())
+    assert_eq!(
+        replies,
+        IrisTraceroute::from_internal(&replies).to_internal()
+    )
 }
