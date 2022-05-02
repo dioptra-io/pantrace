@@ -1,6 +1,6 @@
 use chrono::Utc;
-use iris_converters::format::PantraceFormat;
-use iris_converters::{AtlasTraceroute, IrisTraceroute, MplsEntry, TracerouteReply};
+use pantrace::format::PantraceFormat;
+use pantrace::{AtlasTraceroute, IrisTraceroute, MplsEntry, TracerouteReply};
 use std::net::Ipv6Addr;
 use std::str::FromStr;
 use warts::Traceroute;

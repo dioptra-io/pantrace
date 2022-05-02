@@ -1,10 +1,10 @@
 [package]
-name = "iris-converters"
+name = "pantrace"
 version = "0.1.1"
-description = "Convert Iris measurement data to RIPE Atlas, Scamper, etc. formats."
+description = "Convert between traceroute formats."
 license = "MIT"
 authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
-repository = "https://github.com/dioptra-io/iris-converters/"
+repository = "https://github.com/dioptra-io/pantrace/"
 edition = "2021"
 
 [dependencies]

@@ -1,8 +1,8 @@
 #![feature(stdin_forwarders)]
 
 use clap::{ArgEnum, Parser};
-use iris_converters::format::PantraceFormat;
-use iris_converters::{AtlasTraceroute, IrisTraceroute, TracerouteReply};
+use pantrace::format::PantraceFormat;
+use pantrace::{AtlasTraceroute, IrisTraceroute, TracerouteReply};
 use std::io;
 use std::io::Write;
 use warts::Traceroute;
