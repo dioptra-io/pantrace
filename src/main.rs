@@ -35,7 +35,6 @@ fn main() {
     // TODO: Iterate on bytes instead? (for Ark)
     //   Or make from_bytes return the rest?
     for line in lines {
-        println!("{}", line.as_ref().unwrap());
         match args.from {
             Format::Atlas => {
                 internal = AtlasTraceroute::from_bytes(line.unwrap().as_bytes())
