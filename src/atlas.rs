@@ -263,16 +263,18 @@ fn protocol_number(s: &str) -> u8 {
     match s {
         "ICMP" => 1,
         "ICMP6" => 58,
+        "TCP" => 6,
         "UDP" => 17,
-        _ => panic!("Unsupported protocol"),
+        _ => panic!("Unsupported protocol: {}", s),
     }
 }
 
 fn protocol_string(n: u8) -> String {
     match n {
         1 => String::from("ICMP"),
+        6 => String::from("TCP"),
         17 => String::from("UDP"),
         58 => String::from("ICMP6"),
-        _ => panic!("Unsupported protocol"),
+        _ => panic!("Unsupported protocol: {}", n),
     }
 }
