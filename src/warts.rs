@@ -147,7 +147,7 @@ fn warts_trace_probe_to_internal(
         probe_ttl: tp.probe_ttl.unwrap_or(0),
         reply_ttl: tp.reply_ttl.unwrap_or(0),
         reply_size: tp.reply_size.unwrap_or(0),
-        mpls_labels: vec![], // TODO
+        reply_mpls_labels: vec![], // TODO
         reply_src_addr: tp.addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
         rtt: (tp.rtt_usec.unwrap_or(0) as f64) / 1000.0,
     }

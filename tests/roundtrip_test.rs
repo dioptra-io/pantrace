@@ -17,7 +17,7 @@ fn test_iris() {
         probe_ttl: 8,
         reply_ttl: 1,
         reply_size: 16,
-        mpls_labels: vec![MplsEntry {
+        reply_mpls_labels: vec![MplsEntry {
             label: 1,
             exp: 2,
             bottom_of_stack: 3,

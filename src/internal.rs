@@ -16,7 +16,7 @@ pub struct TracerouteReply {
     pub probe_ttl: u8,
     pub reply_ttl: u8,
     pub reply_size: u16,
-    pub mpls_labels: Vec<MplsEntry>,
+    pub reply_mpls_labels: Vec<MplsEntry>,
     pub reply_src_addr: Ipv6Addr,
     pub rtt: f64,
 }

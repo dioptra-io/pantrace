@@ -176,7 +176,7 @@ impl AtlasTracerouteReply {
             rtt: reply.rtt,
             size: reply.reply_size,
             ttl: reply.reply_ttl,
-            icmpext: vec![AtlasIcmpExt::from_internal(&reply.mpls_labels)],
+            icmpext: vec![AtlasIcmpExt::from_internal(&reply.reply_mpls_labels)],
         }
     }
     pub fn to_internal(
@@ -202,7 +202,7 @@ impl AtlasTracerouteReply {
             probe_ttl: hop,
             reply_ttl: self.ttl,
             reply_size: self.size,
-            mpls_labels: self
+            reply_mpls_labels: self
                 .icmpext
                 .iter()
                 .flat_map(|ext| ext.to_internal())

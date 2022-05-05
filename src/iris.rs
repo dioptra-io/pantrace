@@ -86,7 +86,7 @@ impl IrisReply {
             reply.reply_ttl,
             reply.reply_size,
             reply
-                .mpls_labels
+                .reply_mpls_labels
                 .iter()
                 .map(IrisMplsEntry::from_internal)
                 .collect(),
@@ -114,7 +114,7 @@ impl IrisReply {
             probe_ttl: self.1,
             reply_ttl: self.2,
             reply_size: self.3,
-            mpls_labels: self.4.iter().map(IrisMplsEntry::to_internal).collect(),
+            reply_mpls_labels: self.4.iter().map(IrisMplsEntry::to_internal).collect(),
             reply_src_addr: self.5,
             rtt: self.6,
         }
