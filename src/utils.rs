@@ -1,6 +1,7 @@
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
-use std::net::IpAddr;
+use sha2::{Digest, Sha256};
+use std::net::{IpAddr, Ipv6Addr};
 
 pub fn default_ipaddr() -> Option<IpAddr> {
     None
@@ -12,9 +13,43 @@ where
     T: serde::Deserialize<'de>,
 {
     let opt = Option::<String>::deserialize(de)?;
-    let opt = opt.as_ref().map(String::as_str);
+    let opt = opt.as_deref();
     match opt {
         None | Some("") => Ok(None),
         Some(s) => T::deserialize(s.into_deserializer()).map(Some),
+    }
+}
+
+pub fn id_from_string(s: &str) -> u64 {
+    let mut hasher = Sha256::new();
+    hasher.update(s);
+    let result = hasher.finalize();
+    u64::from_le_bytes(result.as_slice()[..8].try_into().unwrap())
+}
+
+pub fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {
+    match addr {
+        IpAddr::V4(x) => x.to_ipv6_mapped(),
+        IpAddr::V6(x) => x,
+    }
+}
+
+pub fn protocol_number(s: &str) -> u8 {
+    match s {
+        "ICMP" => 1,
+        "ICMP6" => 58,
+        "TCP" => 6,
+        "UDP" => 17,
+        _ => panic!("Unsupported protocol: {}", s),
+    }
+}
+
+pub fn protocol_string(n: u8) -> String {
+    match n {
+        1 => String::from("ICMP"),
+        6 => String::from("TCP"),
+        17 => String::from("UDP"),
+        58 => String::from("ICMP6"),
+        _ => panic!("Unsupported protocol: {}", n),
     }
 }

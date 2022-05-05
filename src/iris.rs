@@ -1,7 +1,7 @@
-use crate::format::PantraceFormat;
 use crate::{MplsEntry, TracerouteReply};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::io::{BufRead, Lines};
 use std::net::Ipv6Addr;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,17 +41,33 @@ pub struct IrisMplsEntry(
     pub u8,  // ttl
 );
 
-impl PantraceFormat for IrisTraceroute {
-    fn from_bytes(data: &[u8]) -> Option<Self>
-    where
-        Self: Sized,
-    {
-        serde_json::from_slice(data).unwrap_or(None)
+pub struct IrisReader<R: BufRead> {
+    lines: Lines<R>,
+}
+
+impl<R: BufRead> IrisReader<R> {
+    pub fn new(input: R) -> IrisReader<R> {
+        IrisReader {
+            lines: input.lines(),
+        }
     }
-    fn to_bytes(self) -> Vec<u8> {
-        serde_json::to_vec(&self).unwrap()
+}
+
+impl<R: BufRead> Iterator for IrisReader<R> {
+    type Item = Vec<TracerouteReply>;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.lines.next() {
+            Some(Ok(line)) => serde_json::from_str::<IrisTraceroute>(&line)
+                .map(|t| Some(t.to_internal()))
+                .unwrap_or(None),
+            Some(Err(_)) => None,
+            None => None,
+        }
     }
-    fn from_internal(replies: &[TracerouteReply]) -> Self {
+}
+
+impl IrisTraceroute {
+    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
         IrisTraceroute {
             probe_protocol: replies[0].probe_protocol,
             probe_src_addr: replies[0].probe_src_addr,
@@ -62,7 +78,7 @@ impl PantraceFormat for IrisTraceroute {
         }
     }
 
-    fn to_internal(&self) -> Vec<TracerouteReply> {
+    pub fn to_internal(&self) -> Vec<TracerouteReply> {
         self.replies
             .iter()
             .map(|reply| {

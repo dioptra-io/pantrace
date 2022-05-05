@@ -4,7 +4,6 @@
 extern crate core;
 
 mod atlas;
-pub mod format;
 mod internal;
 mod iris;
 mod utils;

@@ -1,15 +1,58 @@
+use crate::utils::id_from_string;
 use crate::TracerouteReply;
 use chrono::{Duration, TimeZone, Utc};
-use sha2::{Digest, Sha256};
+use std::io::Read;
 use std::net::Ipv6Addr;
 use std::ops::{Add, Sub};
-use warts::{Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
+use warts::{Address, Object, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
-fn id_from_string(s: &str) -> u64 {
-    let mut hasher = Sha256::new();
-    hasher.update(s);
-    let result = hasher.finalize();
-    u64::from_le_bytes(result.as_slice()[..8].try_into().unwrap())
+pub struct WartsReader {
+    traceroutes: Vec<(u32, String, Traceroute)>,
+}
+
+impl WartsReader {
+    pub fn new<R: Read>(mut input: R) -> WartsReader {
+        let mut reader = WartsReader {
+            traceroutes: Vec::new(),
+        };
+        // We currently read warts file in a single batch.
+        // https://github.com/sharksforarms/deku/issues/105
+        let mut data: Vec<u8> = Vec::new();
+        input.read_to_end(&mut data).unwrap();
+        let objects = Object::all_from_bytes(data.as_slice());
+        let mut cycle_id = 0;
+        let mut monitor_name = "unknown".to_string();
+        for mut object in objects {
+            object.dereference();
+            match object {
+                Object::CycleStart(cycle_start) => {
+                    cycle_id = cycle_start.cycle_id_human;
+                    monitor_name = cycle_start.hostname.unwrap().into_string().unwrap();
+                }
+                Object::Traceroute(traceroute) => {
+                    reader
+                        .traceroutes
+                        .push((cycle_id, monitor_name.clone(), traceroute))
+                }
+                _ => {}
+            }
+        }
+        reader
+    }
+}
+
+impl Iterator for WartsReader {
+    type Item = Vec<TracerouteReply>;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.traceroutes.pop() {
+            Some((cycle_id, monitor_name, traceroute)) => Some(warts_traceroute_to_internal(
+                &traceroute,
+                cycle_id,
+                &monitor_name,
+            )),
+            _ => None,
+        }
+    }
 }
 
 pub fn warts_traceroute_from_internal(replies: &[TracerouteReply]) -> Traceroute {

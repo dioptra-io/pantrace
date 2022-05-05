@@ -1,11 +1,12 @@
-use crate::format::PantraceFormat;
-use crate::utils::{default_ipaddr, empty_string_as_none};
+use crate::utils::{
+    default_ipaddr, empty_string_as_none, id_from_string, ipv6_from_ip, protocol_number,
+    protocol_string,
+};
 use crate::{MplsEntry, TracerouteReply};
 use chrono::serde::ts_seconds;
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
-use sha2::Digest;
-use sha2::Sha256;
+use std::io::{BufRead, Lines};
 use std::net::{IpAddr, Ipv6Addr};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -78,14 +79,33 @@ pub struct AtlasIcmpExtMplsData {
     pub ttl: u8,
 }
 
-impl PantraceFormat for AtlasTraceroute {
-    fn from_bytes(data: &[u8]) -> Option<AtlasTraceroute> {
-        serde_json::from_slice(data).unwrap_or(None)
+pub struct AtlasReader<R: BufRead> {
+    lines: Lines<R>,
+}
+
+impl<R: BufRead> AtlasReader<R> {
+    pub fn new(input: R) -> AtlasReader<R> {
+        AtlasReader {
+            lines: input.lines(),
+        }
     }
-    fn to_bytes(self) -> Vec<u8> {
-        serde_json::to_vec(&self).unwrap()
+}
+
+impl<R: BufRead> Iterator for AtlasReader<R> {
+    type Item = Vec<TracerouteReply>;
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.lines.next() {
+            Some(Ok(line)) => serde_json::from_str::<AtlasTraceroute>(&line)
+                .map(|t| Some(t.to_internal()))
+                .unwrap_or(None),
+            Some(Err(_)) => None,
+            None => None,
+        }
     }
-    fn from_internal(replies: &[TracerouteReply]) -> Self {
+}
+
+impl AtlasTraceroute {
+    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
         // TODO: assert same-flow assumption?
         let ref_reply = &replies[0];
         let start_timestamp = replies
@@ -119,7 +139,7 @@ impl PantraceFormat for AtlasTraceroute {
             kind: "traceroute".to_string(),
         }
     }
-    fn to_internal(&self) -> Vec<TracerouteReply> {
+    pub fn to_internal(&self) -> Vec<TracerouteReply> {
         self.result
             .iter()
             .flat_map(|result| {
@@ -263,40 +283,5 @@ impl AtlasIcmpExtMplsData {
             bottom_of_stack: self.s,
             ttl: self.ttl,
         }
-    }
-}
-
-// TODO: Move somewhere else?
-fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {
-    match addr {
-        IpAddr::V4(x) => x.to_ipv6_mapped(),
-        IpAddr::V6(x) => x,
-    }
-}
-
-fn id_from_string(s: &str) -> u64 {
-    let mut hasher = Sha256::new();
-    hasher.update(s);
-    let result = hasher.finalize();
-    u64::from_le_bytes(result.as_slice()[..8].try_into().unwrap())
-}
-
-fn protocol_number(s: &str) -> u8 {
-    match s {
-        "ICMP" => 1,
-        "ICMP6" => 58,
-        "TCP" => 6,
-        "UDP" => 17,
-        _ => panic!("Unsupported protocol: {}", s),
-    }
-}
-
-fn protocol_string(n: u8) -> String {
-    match n {
-        1 => String::from("ICMP"),
-        6 => String::from("TCP"),
-        17 => String::from("UDP"),
-        58 => String::from("ICMP6"),
-        _ => panic!("Unsupported protocol: {}", n),
     }
 }
