@@ -1,4 +1,5 @@
 use crate::format::PantraceFormat;
+use crate::utils::{default_ipaddr, empty_string_as_none};
 use crate::{MplsEntry, TracerouteReply};
 use chrono::serde::ts_seconds;
 use chrono::{DateTime, TimeZone, Utc};
@@ -10,19 +11,22 @@ use std::net::{IpAddr, Ipv6Addr};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AtlasTraceroute {
     pub af: u8,
-    pub dst_addr: IpAddr,
+    pub dst_addr: Option<IpAddr>,
     pub dst_name: String,
     #[serde(with = "ts_seconds")]
     pub endtime: DateTime<Utc>,
-    pub from: IpAddr,
+    #[serde(default = "default_ipaddr", deserialize_with = "empty_string_as_none")]
+    pub from: Option<IpAddr>,
     pub msm_id: u64,
     pub msm_name: String,
+    #[serde(default)]
     pub paris_id: u16,
     pub prb_id: u64,
     pub proto: String,
     pub result: Vec<AtlasTracerouteHop>,
     pub size: u16,
-    pub src_addr: IpAddr,
+    #[serde(default = "default_ipaddr", deserialize_with = "empty_string_as_none")]
+    pub src_addr: Option<IpAddr>,
     #[serde(with = "ts_seconds")]
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "type")]
@@ -31,7 +35,10 @@ pub struct AtlasTraceroute {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AtlasTracerouteHop {
+    #[serde(default)]
     pub hop: u8,
+    pub error: Option<String>,
+    #[serde(default)]
     pub result: Vec<AtlasTracerouteReply>,
 }
 
@@ -44,7 +51,7 @@ pub struct AtlasTracerouteReply {
     pub size: u16,
     #[serde(default)]
     pub ttl: u8,
-    #[serde(default)]
+    #[serde(skip)]
     pub icmpext: Vec<AtlasIcmpExt>,
 }
 
@@ -72,11 +79,8 @@ pub struct AtlasIcmpExtMplsData {
 }
 
 impl PantraceFormat for AtlasTraceroute {
-    fn from_bytes(data: &[u8]) -> Option<Self>
-    where
-        Self: Sized,
-    {
-        Some(serde_json::from_slice(data).unwrap())
+    fn from_bytes(data: &[u8]) -> Option<AtlasTraceroute> {
+        serde_json::from_slice(data).unwrap_or(None)
     }
     fn to_bytes(self) -> Vec<u8> {
         serde_json::to_vec(&self).unwrap()
@@ -96,10 +100,10 @@ impl PantraceFormat for AtlasTraceroute {
             .unwrap();
         AtlasTraceroute {
             af: ref_reply.af(),
-            dst_addr: IpAddr::from(ref_reply.probe_dst_addr),
+            dst_addr: Some(IpAddr::from(ref_reply.probe_dst_addr)),
             dst_name: ref_reply.probe_dst_addr.to_string(),
             endtime: end_timestamp,
-            from: IpAddr::from(ref_reply.probe_src_addr),
+            from: Some(IpAddr::from(ref_reply.probe_src_addr)),
             msm_id: id_from_string("TODO"),
             msm_name: "TODO".to_string(),
             paris_id: ref_reply.probe_src_port,
@@ -110,7 +114,7 @@ impl PantraceFormat for AtlasTraceroute {
                 .map(AtlasTracerouteHop::from_internal)
                 .collect(),
             size: 0, // TODO
-            src_addr: IpAddr::from(ref_reply.probe_src_addr),
+            src_addr: Some(IpAddr::from(ref_reply.probe_src_addr)),
             timestamp: start_timestamp,
             kind: "traceroute".to_string(),
         }
@@ -119,7 +123,14 @@ impl PantraceFormat for AtlasTraceroute {
         self.result
             .iter()
             .flat_map(|result| {
-                result.to_internal(&self.proto, self.src_addr, self.dst_addr, self.paris_id)
+                result.to_internal(
+                    self.msm_id,
+                    self.prb_id,
+                    &self.proto,
+                    self.src_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
+                    self.dst_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
+                    self.paris_id,
+                )
             })
             .collect()
     }
@@ -131,6 +142,7 @@ impl AtlasTracerouteHop {
         let ref_reply = &replies[0];
         AtlasTracerouteHop {
             hop: ref_reply.probe_ttl,
+            error: None,
             result: replies
                 .iter()
                 .map(AtlasTracerouteReply::from_internal)
@@ -139,6 +151,8 @@ impl AtlasTracerouteHop {
     }
     pub fn to_internal(
         &self,
+        msm_id: u64,
+        prb_id: u64,
         proto: &str,
         src_addr: IpAddr,
         dst_addr: IpAddr,
@@ -146,7 +160,11 @@ impl AtlasTracerouteHop {
     ) -> Vec<TracerouteReply> {
         self.result
             .iter()
-            .map(|result| result.to_internal(proto, src_addr, dst_addr, paris_id, self.hop))
+            .map(|result| {
+                result.to_internal(
+                    msm_id, prb_id, proto, src_addr, dst_addr, paris_id, self.hop,
+                )
+            })
             .collect()
     }
 }
@@ -163,6 +181,8 @@ impl AtlasTracerouteReply {
     }
     pub fn to_internal(
         &self,
+        msm_id: u64,
+        prb_id: u64,
         proto: &str,
         src_addr: IpAddr,
         dst_addr: IpAddr,
@@ -170,6 +190,8 @@ impl AtlasTracerouteReply {
         hop: u8,
     ) -> TracerouteReply {
         TracerouteReply {
+            measurement_id: msm_id,
+            agent_id: prb_id,
             probe_protocol: protocol_number(proto),
             probe_src_addr: ipv6_from_ip(src_addr),
             probe_dst_addr: ipv6_from_ip(dst_addr),

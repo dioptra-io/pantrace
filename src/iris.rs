@@ -103,6 +103,8 @@ impl IrisReply {
         probe_dst_port: u16,
     ) -> TracerouteReply {
         TracerouteReply {
+            measurement_id: 0, // TODO
+            agent_id: 0,       // TODO
             probe_protocol,
             probe_src_addr,
             probe_dst_addr,
