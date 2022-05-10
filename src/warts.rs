@@ -20,21 +20,35 @@ impl WartsReader {
         let mut data: Vec<u8> = Vec::new();
         input.read_to_end(&mut data).unwrap();
         let objects = Object::all_from_bytes(data.as_slice());
+        let mut table = Vec::new();
         let mut cycle_id = 0;
         let mut monitor_name = "unknown".to_string();
-        for mut object in objects {
-            object.dereference();
+        for object in &objects {
             match object {
-                Object::CycleStart(cycle_start) => {
+                Object::Address(address) => table.push(Address::from(*address)),
+                Object::CycleDefinition(cycle_start) | Object::CycleStart(cycle_start) => {
                     cycle_id = cycle_start.cycle_id_human;
-                    monitor_name = cycle_start.hostname.unwrap().into_string().unwrap();
-                }
-                Object::Traceroute(traceroute) => {
-                    reader
-                        .traceroutes
-                        .push((cycle_id, monitor_name.clone(), traceroute))
+                    monitor_name = cycle_start
+                        .hostname
+                        .as_ref()
+                        .unwrap()
+                        .clone()
+                        .into_string()
+                        .unwrap();
                 }
                 _ => {}
+            }
+        }
+        for mut object in objects {
+            if table.is_empty() {
+                object.dereference();
+            } else {
+                object.dereference_with_table(&table);
+            }
+            if let Object::Traceroute(traceroute) = object {
+                reader
+                    .traceroutes
+                    .push((cycle_id, monitor_name.clone(), traceroute))
             }
         }
         reader
