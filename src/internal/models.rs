@@ -18,7 +18,9 @@ pub struct TracerouteReply {
     pub reply_size: u16,
     pub reply_mpls_labels: Vec<MplsEntry>,
     pub reply_src_addr: Ipv6Addr,
-    pub rtt: f64,
+    pub reply_icmp_type: u8,
+    pub reply_icmp_code: u8,
+    pub rtt: u16,
 }
 
 #[derive(Debug, PartialEq, Serialize)]

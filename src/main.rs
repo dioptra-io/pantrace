@@ -1,9 +1,12 @@
 #![feature(stdin_forwarders)]
 
 use clap::{ArgEnum, Parser};
-use pantrace::{
-    AtlasReader, AtlasTraceroute, IrisReader, IrisTraceroute, TracerouteReply, WartsReader,
-};
+use pantrace::atlas::models::AtlasTraceroute;
+use pantrace::atlas::reader::AtlasReader;
+use pantrace::internal::models::TracerouteReply;
+use pantrace::iris::models::IrisTraceroute;
+use pantrace::iris::reader::IrisReader;
+use pantrace::warts::reader::WartsReader;
 use std::io;
 
 #[derive(ArgEnum, Clone, Debug, PartialEq)]
