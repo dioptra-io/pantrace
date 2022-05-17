@@ -4,7 +4,7 @@ use crate::atlas::models::{
 };
 use crate::internal::models::{MplsEntry, TracerouteReply};
 use crate::utils::{ipv6_from_ip, protocol_number};
-use chrono::{TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use std::net::{IpAddr, Ipv6Addr};
 
 impl AtlasTraceroute {
@@ -15,6 +15,7 @@ impl AtlasTraceroute {
                 result.to_internal(
                     self.msm_id,
                     self.prb_id,
+                    self.timestamp,
                     &self.proto,
                     self.src_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
                     self.dst_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
@@ -30,6 +31,7 @@ impl AtlasTracerouteHop {
         &self,
         msm_id: u64,
         prb_id: u64,
+        timestamp: DateTime<Utc>,
         proto: &str,
         src_addr: IpAddr,
         dst_addr: IpAddr,
@@ -39,7 +41,7 @@ impl AtlasTracerouteHop {
             .iter()
             .map(|result| {
                 result.to_internal(
-                    msm_id, prb_id, proto, src_addr, dst_addr, paris_id, self.hop,
+                    msm_id, prb_id, timestamp, proto, src_addr, dst_addr, paris_id, self.hop,
                 )
             })
             .collect()
@@ -51,6 +53,7 @@ impl AtlasTracerouteReply {
         &self,
         msm_id: u64,
         prb_id: u64,
+        timestamp: DateTime<Utc>,
         proto: &str,
         src_addr: IpAddr,
         dst_addr: IpAddr,
@@ -60,6 +63,7 @@ impl AtlasTracerouteReply {
         TracerouteReply {
             measurement_id: msm_id,
             agent_id: prb_id,
+            measurement_start: timestamp,
             probe_protocol: protocol_number(proto),
             probe_src_addr: ipv6_from_ip(src_addr),
             probe_dst_addr: ipv6_from_ip(dst_addr),

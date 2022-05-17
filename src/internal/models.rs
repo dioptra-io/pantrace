@@ -7,6 +7,7 @@ use std::net::Ipv6Addr;
 pub struct TracerouteReply {
     pub measurement_id: u64,
     pub agent_id: u64,
+    pub measurement_start: DateTime<Utc>,
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,

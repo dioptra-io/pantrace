@@ -1,5 +1,6 @@
 use crate::internal::models::{MplsEntry, TracerouteReply};
 use crate::iris::models::{IrisMplsEntry, IrisReply, IrisTraceroute};
+use chrono::Utc;
 use std::net::Ipv6Addr;
 
 impl IrisTraceroute {
@@ -29,8 +30,9 @@ impl IrisReply {
         probe_dst_port: u16,
     ) -> TracerouteReply {
         TracerouteReply {
-            measurement_id: 0, // TODO
-            agent_id: 0,       // TODO
+            measurement_id: 0,             // TODO
+            agent_id: 0,                   // TODO
+            measurement_start: Utc::now(), // TODO
             probe_protocol,
             probe_src_addr,
             probe_dst_addr,
