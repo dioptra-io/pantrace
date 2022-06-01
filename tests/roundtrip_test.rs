@@ -1,6 +1,6 @@
 use chrono::Utc;
-use pantrace::format::PantraceFormat;
-use pantrace::{IrisTraceroute, MplsEntry, TracerouteReply};
+use pantrace::internal::models::{MplsEntry, TracerouteReply};
+use pantrace::iris::models::IrisTraceroute;
 use std::net::Ipv6Addr;
 use std::str::FromStr;
 
@@ -8,6 +8,9 @@ use std::str::FromStr;
 fn test_iris() {
     let mut replies = Vec::new();
     replies.push(TracerouteReply {
+        measurement_id: 0,
+        agent_id: 0,
+        measurement_start: Utc::now(),
         probe_protocol: 1,
         probe_src_addr: Ipv6Addr::from_str("2001:db8::1").unwrap(),
         probe_dst_addr: Ipv6Addr::from_str("2001:db8::2").unwrap(),
@@ -24,7 +27,9 @@ fn test_iris() {
             ttl: 4,
         }],
         reply_src_addr: Ipv6Addr::from_str("2001:db8::3").unwrap(),
-        rtt: 3.14,
+        reply_icmp_type: 0,
+        reply_icmp_code: 0,
+        rtt: 314,
     });
     assert_eq!(
         replies,

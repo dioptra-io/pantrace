@@ -1,9 +1,9 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::net::Ipv6Addr;
 
 // TODO: Store information about the flow ID (src-port, dst-port, ...)
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteReply {
     pub measurement_id: u64,
     pub agent_id: u64,
@@ -24,7 +24,7 @@ pub struct TracerouteReply {
     pub rtt: u16,
 }
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct MplsEntry {
     pub label: u32,
     pub exp: u8,
