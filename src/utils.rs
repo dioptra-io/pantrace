@@ -1,6 +1,5 @@
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
-use sha2::{Digest, Sha256};
 use std::net::{IpAddr, Ipv6Addr};
 
 pub fn default_ipaddr() -> Option<IpAddr> {
@@ -18,13 +17,6 @@ where
         None | Some("") => Ok(None),
         Some(s) => T::deserialize(s.into_deserializer()).map(Some),
     }
-}
-
-pub fn id_from_string(s: &str) -> u64 {
-    let mut hasher = Sha256::new();
-    hasher.update(s);
-    let result = hasher.finalize();
-    u64::from_le_bytes(result.as_slice()[..8].try_into().unwrap())
 }
 
 pub fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {

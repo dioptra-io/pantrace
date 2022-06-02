@@ -4,7 +4,7 @@ use std::io::Read;
 use warts::{Address, Object, Traceroute};
 
 pub struct WartsReader {
-    traceroutes: Vec<(u32, u32, String, Traceroute)>,
+    traceroutes: Vec<(u32, String, Traceroute)>,
 }
 
 impl WartsReader {
@@ -19,14 +19,12 @@ impl WartsReader {
         let objects = Object::all_from_bytes(data.as_slice());
         let mut table = Vec::new();
         let mut cycle_id = 0;
-        let mut cycle_start_time = 0;
         let mut monitor_name = "unknown".to_string();
         for object in &objects {
             match object {
                 Object::Address(address) => table.push(Address::from(*address)),
                 Object::CycleDefinition(cycle_start) | Object::CycleStart(cycle_start) => {
                     cycle_id = cycle_start.cycle_id_human;
-                    cycle_start_time = cycle_start.start_time;
                     monitor_name = cycle_start
                         .hostname
                         .as_ref()
@@ -45,12 +43,9 @@ impl WartsReader {
                 object.dereference_with_table(&table);
             }
             if let Object::Traceroute(traceroute) = object {
-                reader.traceroutes.push((
-                    cycle_id,
-                    cycle_start_time,
-                    monitor_name.clone(),
-                    traceroute,
-                ))
+                reader
+                    .traceroutes
+                    .push((cycle_id, monitor_name.clone(), traceroute))
             }
         }
         reader
@@ -61,14 +56,11 @@ impl Iterator for WartsReader {
     type Item = Vec<TracerouteReply>;
     fn next(&mut self) -> Option<Self::Item> {
         match self.traceroutes.pop() {
-            Some((cycle_id, cycle_start_time, monitor_name, traceroute)) => {
-                Some(warts_traceroute_to_internal(
-                    &traceroute,
-                    cycle_id,
-                    cycle_start_time,
-                    &monitor_name,
-                ))
-            }
+            Some((cycle_id, monitor_name, traceroute)) => Some(warts_traceroute_to_internal(
+                &traceroute,
+                cycle_id,
+                &monitor_name,
+            )),
             _ => None,
         }
     }

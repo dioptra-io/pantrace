@@ -30,9 +30,9 @@ impl IrisReply {
         probe_dst_port: u16,
     ) -> TracerouteReply {
         TracerouteReply {
-            measurement_id: 0,             // TODO
-            agent_id: 0,                   // TODO
-            measurement_start: Utc::now(), // TODO
+            measurement_id: "".to_string(), // TODO
+            agent_id: "".to_string(),       // TODO
+            traceroute_start: Utc::now(),   // TODO
             probe_protocol,
             probe_src_addr,
             probe_dst_addr,

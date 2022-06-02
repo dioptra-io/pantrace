@@ -61,9 +61,9 @@ impl AtlasTracerouteReply {
         hop: u8,
     ) -> TracerouteReply {
         TracerouteReply {
-            measurement_id: msm_id,
-            agent_id: prb_id,
-            measurement_start: timestamp,
+            measurement_id: msm_id.to_string(),
+            agent_id: prb_id.to_string(),
+            traceroute_start: timestamp,
             probe_protocol: protocol_number(proto),
             probe_src_addr: ipv6_from_ip(src_addr),
             probe_dst_addr: ipv6_from_ip(dst_addr),

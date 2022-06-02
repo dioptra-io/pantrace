@@ -1,5 +1,4 @@
 use crate::internal::models::TracerouteReply;
-use crate::utils::id_from_string;
 use chrono::TimeZone;
 use chrono::{Duration, Utc};
 use std::net::Ipv6Addr;
@@ -9,7 +8,6 @@ use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
 pub fn warts_traceroute_to_internal(
     traceroute: &Traceroute,
     cycle_id: u32,
-    cycle_start_time: u32,
     monitor_name: &str,
 ) -> Vec<TracerouteReply> {
     traceroute
@@ -19,8 +17,8 @@ pub fn warts_traceroute_to_internal(
             warts_trace_probe_to_internal(
                 tp,
                 cycle_id,
-                cycle_start_time,
                 monitor_name,
+                traceroute.start_time.as_ref(),
                 traceroute.trace_type.as_ref(),
                 traceroute.src_addr,
                 traceroute.dst_addr,
@@ -34,14 +32,18 @@ pub fn warts_traceroute_to_internal(
 fn warts_trace_probe_to_internal(
     tp: &TraceProbe,
     cycle_id: u32,
-    cycle_start_time: u32,
     monitor_name: &str,
+    trace_start: Option<&Timeval>,
     trace_type: Option<&TraceType>,
     src_addr: Option<Address>,
     dst_addr: Option<Address>,
     src_port: Option<u16>,
     dst_port: Option<u16>,
 ) -> TracerouteReply {
+    let traceroute_start = trace_start.unwrap_or(&Timeval {
+        seconds: 0,
+        microseconds: 0,
+    });
     let tx = tp.tx.as_ref().unwrap_or(&Timeval {
         seconds: 0,
         microseconds: 0,
@@ -50,9 +52,9 @@ fn warts_trace_probe_to_internal(
         .timestamp(tx.seconds as i64, tx.microseconds * 1000)
         .add(Duration::microseconds(tp.rtt_usec.unwrap_or(0) as i64));
     TracerouteReply {
-        measurement_id: cycle_id as u64,
-        agent_id: id_from_string(monitor_name),
-        measurement_start: Utc.timestamp(cycle_start_time as i64, 0),
+        measurement_id: cycle_id.to_string(),
+        agent_id: monitor_name.into(),
+        traceroute_start: Utc.timestamp(traceroute_start.seconds as i64, 0),
         probe_protocol: trace_type.map_or(0, protocol_number),
         probe_src_addr: src_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
         probe_dst_addr: dst_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),

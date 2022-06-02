@@ -5,9 +5,15 @@ use std::net::Ipv6Addr;
 // TODO: Store information about the flow ID (src-port, dst-port, ...)
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteReply {
-    pub measurement_id: u64,
-    pub agent_id: u64,
-    pub measurement_start: DateTime<Utc>,
+    /// Platform-specific measurement identifier:
+    /// `msm_id` on Atlas, `cycle_id` on Scamper / Ark, `measurement_uuid` on Iris...
+    /// The precise semantics of this field depends on the platform. In general, assume that a same
+    /// measurement identifier might be used by multiple traceroutes from multiple vantage points
+    /// towards multiple destinations.
+    pub measurement_id: String,
+    /// Platform-specific vantage point identifier.
+    pub agent_id: String,
+    pub traceroute_start: DateTime<Utc>,
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,

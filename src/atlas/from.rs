@@ -3,7 +3,7 @@ use crate::atlas::models::{
     AtlasTracerouteReply,
 };
 use crate::internal::models::{MplsEntry, TracerouteReply};
-use crate::utils::{id_from_string, protocol_string};
+use crate::utils::protocol_string;
 use std::net::IpAddr;
 
 impl AtlasTraceroute {
@@ -26,10 +26,10 @@ impl AtlasTraceroute {
             dst_name: ref_reply.probe_dst_addr.to_string(),
             endtime: end_timestamp,
             from: Some(IpAddr::from(ref_reply.probe_src_addr)),
-            msm_id: id_from_string("TODO"),
+            msm_id: 0, // TODO
             msm_name: "TODO".to_string(),
             paris_id: ref_reply.probe_src_port,
-            prb_id: id_from_string("TODO"),
+            prb_id: 0, // TODO
             proto: protocol_string(ref_reply.probe_protocol),
             result: replies
                 .group_by(|a, b| a.probe_ttl == b.probe_ttl)
