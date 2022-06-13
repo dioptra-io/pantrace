@@ -17,7 +17,7 @@ impl AtlasTraceroute {
                     self.prb_id,
                     self.timestamp,
                     &self.proto,
-                    self.src_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
+                    self.from.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
                     self.dst_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
                     self.paris_id,
                 )
