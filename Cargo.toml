@@ -1,0 +1,17 @@
+[package]
+name = "pantrace"
+version = "0.2.0"
+description = "Convert between traceroute formats."
+license = "MIT"
+authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
+repository = "https://github.com/dioptra-io/pantrace/"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "3.1.12", features = ["derive"] }
+deku = "0.12.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10.2"
+warts = "0.3.2"
