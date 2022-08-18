@@ -1,5 +1,3 @@
-#![feature(stdin_forwarders)]
-
 use clap::{AppSettings, ArgEnum, Parser};
 use pantrace::atlas::models::AtlasTraceroute;
 use pantrace::atlas::reader::AtlasReader;

@@ -13,6 +13,10 @@ Convert between traceroute formats.
 cargo install pantrace
 ```
 
+```bash
+docker run ghcr.io/dioptra-io/pantrace --help
+```
+
 ## Usage
 
 ```bash
