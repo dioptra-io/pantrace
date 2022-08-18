@@ -7,14 +7,24 @@
 
 Convert between traceroute formats.
 
-## Quickstart
+## Installation
+
+### Cargo
 
 ```bash
-docker run ghcr.io/dioptra-io/pantrace --help
+cargo install pantrace
 ```
+
+### Docker
+
+```bash
+docker run ghcr.io/dioptra-io/pantrace:main --help
+```
+
+## Usage
 
 ```bash
 curl -L -o example.ndjson \
     "https://atlas.ripe.net/api/v2/measurements/23119200/results/?start=1625097600&stop=1625788799&format=txt&probe_ids=6479"
-cat example.ndjson | docker run ghcr.io/dioptra-io/pantrace --from atlas --to warts > example.warts
+pantrace --from atlas --to warts --input example.ndjson --output example.warts
 ```
