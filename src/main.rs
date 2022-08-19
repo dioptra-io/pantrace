@@ -7,6 +7,7 @@ use pantrace::traits::{TracerouteReader, TracerouteWriter};
 use pantrace::warts_trace::{WartsTraceReader, WartsTraceWriter};
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead, BufReader, Write};
+use std::process::exit;
 
 #[derive(ArgEnum, Clone, Debug, PartialEq)]
 enum Format {
@@ -81,10 +82,9 @@ fn main() -> Result<()> {
 
     for result in reader {
         if let Err(e) = result.map(|replies| writer.write_traceroute(&replies)) {
+            eprintln!("{}", e);
             if args.exit_on_error {
-                panic!("{}", e);
-            } else {
-                eprintln!("{}", e)
+                exit(1);
             }
         }
     }
