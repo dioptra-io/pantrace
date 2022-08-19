@@ -5,7 +5,7 @@ repos:
       - id: fmt
       - id: cargo-check
       - id: clippy
-        args: ["--", "-D", "warnings", "-A", "clippy::too-many-arguments"]
+        args: [ "--", "-D", "warnings", "-A", "clippy::too-many-arguments", "-A", "clippy::derive-partial-eq-without-eq" ]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0

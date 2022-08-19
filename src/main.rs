@@ -1,10 +1,11 @@
+use anyhow::{Context, Result};
 use clap::{AppSettings, ArgEnum, Parser};
-use pantrace::atlas::models::AtlasTraceroute;
 use pantrace::atlas::reader::AtlasReader;
-use pantrace::internal::models::TracerouteReply;
+use pantrace::atlas::writer::AtlasWriter;
 use pantrace::internal::reader::InternalReader;
-use pantrace::iris::models::IrisTraceroute;
 use pantrace::iris::reader::IrisReader;
+use pantrace::iris::writer::IrisWriter;
+use pantrace::traits::{TracerouteReader, TracerouteWriter};
 use pantrace::warts_trace::reader::WartsReader;
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead, BufReader, Write};
@@ -39,60 +40,48 @@ struct Args {
     // TODO: Option to ignore errors/print invalid lines.
 }
 
-fn main() {
+// TODO: Remove call to unwrap() in the codebase.
+// TODO: Refactor modules to simplify imports?
+
+fn main() -> Result<()> {
     let args = Args::parse();
 
     let input: Box<dyn BufRead> = match args.input {
         Some(input_file) => {
-            let f = File::open(input_file).unwrap();
+            let f = File::open(&input_file)
+                .with_context(|| format!("Failed to open input file {}", input_file))?;
             Box::new(BufReader::new(f))
         }
         None => Box::new(stdin().lock()),
     };
 
-    let mut output: Box<dyn Write> = match args.output {
+    let output: Box<dyn Write> = match args.output {
         Some(output_file) => {
-            let f = File::create(output_file).unwrap();
+            let f = File::create(&output_file)
+                .with_context(|| format!("Failed to open output file {}", output_file))?;
             Box::new(f)
         }
         None => Box::new(stdout().lock()),
     };
 
-    let reader: Box<dyn Iterator<Item = Vec<TracerouteReply>>> = match args.from {
+    let reader: Box<TracerouteReader> = match args.from {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
         Format::Warts => Box::new(WartsReader::new(input)),
     };
 
-    for replies in reader {
-        // TODO: Create Writer structs?
-        match args.to {
-            Format::Atlas => {
-                let traceroute = AtlasTraceroute::from_internal(&replies);
-                output
-                    .write_all(&serde_json::to_vec(&traceroute).unwrap())
-                    .unwrap();
-                output.write_all("\n".as_ref()).unwrap();
-            }
-            Format::Internal => {
-                for reply in replies {
-                    output
-                        .write_all(&serde_json::to_vec(&reply).unwrap())
-                        .unwrap();
-                    output.write_all("\n".as_ref()).unwrap();
-                }
-            }
-            Format::Iris => {
-                let traceroute = IrisTraceroute::from_internal(&replies);
-                output
-                    .write_all(&serde_json::to_vec(&traceroute).unwrap())
-                    .unwrap();
-                output.write_all("\n".as_ref()).unwrap();
-            }
-            Format::Warts => {
-                todo!()
-            }
+    let mut writer: Box<dyn TracerouteWriter> = match args.to {
+        Format::Atlas => Box::new(AtlasWriter::new(output)),
+        Format::Iris => Box::new(IrisWriter::new(output)),
+        _ => unimplemented!(),
+    };
+
+    for result in reader {
+        if let Err(e) = result.map(|replies| writer.write_traceroute(&replies)) {
+            eprintln!("{}", e)
         }
     }
+
+    Ok(())
 }

@@ -14,9 +14,9 @@ impl<R: BufRead> InternalReader<R> {
 }
 
 impl<R: BufRead> Iterator for InternalReader<R> {
-    type Item = Vec<TracerouteReply>;
+    type Item = anyhow::Result<Vec<TracerouteReply>>;
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: group by flow
+        // TODO: Group by flow
         match self.lines.next() {
             Some(Ok(_line)) => {
                 todo!()

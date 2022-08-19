@@ -16,7 +16,7 @@ impl WartsReader {
         // https://github.com/sharksforarms/deku/issues/105
         let mut data: Vec<u8> = Vec::new();
         input.read_to_end(&mut data).unwrap();
-        let objects = Object::all_from_bytes(data.as_slice());
+        let objects = Object::all_from_bytes(&data);
         let mut table = Vec::new();
         let mut cycle_id = 0;
         let mut monitor_name = "unknown".to_string();
@@ -53,14 +53,14 @@ impl WartsReader {
 }
 
 impl Iterator for WartsReader {
-    type Item = Vec<TracerouteReply>;
+    type Item = anyhow::Result<Vec<TracerouteReply>>;
     fn next(&mut self) -> Option<Self::Item> {
         match self.traceroutes.pop() {
-            Some((cycle_id, monitor_name, traceroute)) => Some(warts_traceroute_to_internal(
+            Some((cycle_id, monitor_name, traceroute)) => Some(Ok(warts_traceroute_to_internal(
                 &traceroute,
                 cycle_id,
                 &monitor_name,
-            )),
+            ))),
             _ => None,
         }
     }

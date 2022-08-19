@@ -15,14 +15,12 @@ impl<R: BufRead> IrisReader<R> {
 }
 
 impl<R: BufRead> Iterator for IrisReader<R> {
-    type Item = Vec<TracerouteReply>;
+    type Item = anyhow::Result<Vec<TracerouteReply>>;
     fn next(&mut self) -> Option<Self::Item> {
-        match self.lines.next() {
-            Some(Ok(line)) => serde_json::from_str::<IrisTraceroute>(&line)
-                .map(|t| Some(t.to_internal()))
-                .unwrap_or(None),
-            Some(Err(_)) => None,
-            None => None,
-        }
+        self.lines.next().map(|result| {
+            let line = result?;
+            let replies = serde_json::from_str::<IrisTraceroute>(&line)?;
+            Ok(replies.to_internal())
+        })
     }
 }
