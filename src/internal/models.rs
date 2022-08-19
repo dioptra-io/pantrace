@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::net::Ipv6Addr;
 
-// TODO: Store information about the flow ID (src-port, dst-port, ...)
+// TODO: Store information about the method used to vary the flow ID (src-port, dst-port, ...)
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteReply {
     /// Platform-specific measurement identifier:

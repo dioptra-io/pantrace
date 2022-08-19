@@ -3,7 +3,6 @@ use crate::warts_trace::to::warts_traceroute_to_internal;
 use std::io::Read;
 use warts::{Address, Object, Traceroute};
 
-// TODO: Rename to WartsTrace
 pub struct WartsTraceReader {
     traceroutes: Vec<(u32, String, Traceroute)>,
 }
