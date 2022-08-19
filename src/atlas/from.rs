@@ -7,7 +7,10 @@ use crate::utils::protocol_string;
 use std::net::IpAddr;
 
 impl AtlasTraceroute {
-    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
+    pub fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
+        if replies.is_empty() {
+            return None;
+        }
         // TODO: assert same-flow assumption?
         let ref_reply = &replies[0];
         let start_timestamp = replies
@@ -20,7 +23,7 @@ impl AtlasTraceroute {
             .map(|reply| reply.capture_timestamp)
             .max()
             .unwrap();
-        AtlasTraceroute {
+        Some(AtlasTraceroute {
             af: ref_reply.af(),
             dst_addr: Some(IpAddr::from(ref_reply.probe_dst_addr)),
             dst_name: ref_reply.probe_dst_addr.to_string(),
@@ -39,7 +42,7 @@ impl AtlasTraceroute {
             src_addr: Some(IpAddr::from(ref_reply.probe_src_addr)),
             timestamp: start_timestamp,
             kind: "traceroute".to_string(),
-        }
+        })
     }
 }
 

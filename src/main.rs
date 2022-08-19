@@ -1,12 +1,10 @@
 use anyhow::{Context, Result};
 use clap::{AppSettings, ArgEnum, Parser};
-use pantrace::atlas::reader::AtlasReader;
-use pantrace::atlas::writer::AtlasWriter;
-use pantrace::internal::reader::InternalReader;
-use pantrace::iris::reader::IrisReader;
-use pantrace::iris::writer::IrisWriter;
+use pantrace::atlas::{AtlasReader, AtlasWriter};
+use pantrace::internal::{InternalReader, InternalWriter};
+use pantrace::iris::{IrisReader, IrisWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
-use pantrace::warts_trace::reader::WartsReader;
+use pantrace::warts_trace::WartsReader;
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead, BufReader, Write};
 
@@ -15,7 +13,7 @@ enum Format {
     Atlas,
     Internal,
     Iris,
-    Warts,
+    WartsTrace,
 }
 
 #[derive(Debug, Parser)]
@@ -39,9 +37,6 @@ struct Args {
     standalone: bool,
     // TODO: Option to ignore errors/print invalid lines.
 }
-
-// TODO: Remove call to unwrap() in the codebase.
-// TODO: Refactor modules to simplify imports?
 
 fn main() -> Result<()> {
     let args = Args::parse();
@@ -68,11 +63,12 @@ fn main() -> Result<()> {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
-        Format::Warts => Box::new(WartsReader::new(input)),
+        Format::WartsTrace => Box::new(WartsReader::new(input)),
     };
 
     let mut writer: Box<dyn TracerouteWriter> = match args.to {
         Format::Atlas => Box::new(AtlasWriter::new(output)),
+        Format::Internal => Box::new(InternalWriter::new(output)),
         Format::Iris => Box::new(IrisWriter::new(output)),
         _ => unimplemented!(),
     };
