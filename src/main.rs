@@ -35,7 +35,9 @@ struct Args {
     /// Output start/end markers (e.g. Warts CycleStart/CycleStop).
     #[clap(short, long)]
     standalone: bool,
-    // TODO: Option to ignore errors/print invalid lines.
+    /// Exit on the first error, instead of logging them.
+    #[clap(short, long)]
+    exit_on_error: bool,
 }
 
 fn main() -> Result<()> {
@@ -75,7 +77,11 @@ fn main() -> Result<()> {
 
     for result in reader {
         if let Err(e) = result.map(|replies| writer.write_traceroute(&replies)) {
-            eprintln!("{}", e)
+            if args.exit_on_error {
+                panic!("{}", e);
+            } else {
+                eprintln!("{}", e)
+            }
         }
     }
 
