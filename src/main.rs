@@ -4,7 +4,7 @@ use pantrace::atlas::{AtlasReader, AtlasWriter};
 use pantrace::internal::{InternalReader, InternalWriter};
 use pantrace::iris::{IrisReader, IrisWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
-use pantrace::warts_trace::WartsReader;
+use pantrace::warts_trace::{WartsTraceReader, WartsTraceWriter};
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead, BufReader, Write};
 
@@ -65,15 +65,19 @@ fn main() -> Result<()> {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
-        Format::WartsTrace => Box::new(WartsReader::new(input)),
+        Format::WartsTrace => Box::new(WartsTraceReader::new(input)),
     };
 
     let mut writer: Box<dyn TracerouteWriter> = match args.to {
         Format::Atlas => Box::new(AtlasWriter::new(output)),
         Format::Internal => Box::new(InternalWriter::new(output)),
         Format::Iris => Box::new(IrisWriter::new(output)),
-        _ => unimplemented!(),
+        Format::WartsTrace => Box::new(WartsTraceWriter::new(output)),
     };
+
+    if args.standalone {
+        writer.write_preamble()?;
+    }
 
     for result in reader {
         if let Err(e) = result.map(|replies| writer.write_traceroute(&replies)) {
@@ -83,6 +87,10 @@ fn main() -> Result<()> {
                 eprintln!("{}", e)
             }
         }
+    }
+
+    if args.standalone {
+        writer.write_epilogue()?;
     }
 
     Ok(())

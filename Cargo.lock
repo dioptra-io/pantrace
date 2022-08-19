@@ -159,18 +159,8 @@ version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
 dependencies = [
- "darling_core 0.13.4",
- "darling_macro 0.13.4",
-]
-
-[[package]]
-name = "darling"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4529658bdda7fd6769b8614be250cdcfc3aeb0ee72fe66f9e41e5e5eb73eac02"
-dependencies = [
- "darling_core 0.14.1",
- "darling_macro 0.14.1",
+ "darling_core",
+ "darling_macro",
 ]
 
 [[package]]
@@ -188,37 +178,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "darling_core"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "649c91bc01e8b1eac09fb91e8dbc7d517684ca6be8ebc75bb9cafc894f9fdb6f"
-dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
-]
-
-[[package]]
 name = "darling_macro"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
 dependencies = [
- "darling_core 0.13.4",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "darling_macro"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddfc69c5bfcbd2fc09a0f38451d2daf0e372e367986a83906d1b0dbc88134fb5"
-dependencies = [
- "darling_core 0.14.1",
+ "darling_core",
  "quote",
  "syn",
 ]
@@ -230,17 +195,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe18ce09f5d512cad19bbac22e395aa36cfa12cf699a3bcb3787af62dde4b13a"
 dependencies = [
  "bitvec",
- "deku_derive 0.12.6",
-]
-
-[[package]]
-name = "deku"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "868ccf23869582b2d79279e402db457fe341da24a0c5a8927c6154a5b4733dc3"
-dependencies = [
- "bitvec",
- "deku_derive 0.13.1",
+ "deku_derive",
 ]
 
 [[package]]
@@ -249,20 +204,7 @@ version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "691ea0b164aad4a4517f5b47130e15868af1f02fed614c45a1967cbfe2c318d7"
 dependencies = [
- "darling 0.13.4",
- "proc-macro-crate",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "deku_derive"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dfb4274ccd1c87a598e98b398b4b630aecb2e8a32fd7c88ffa190fb73870f72"
-dependencies = [
- "darling 0.14.1",
+ "darling",
  "proc-macro-crate",
  "proc-macro2",
  "quote",
@@ -419,7 +361,6 @@ dependencies = [
  "anyhow",
  "chrono",
  "clap",
- "deku 0.13.1",
  "serde",
  "serde_json",
  "sha2",
@@ -631,12 +572,12 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
 name = "warts"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e75c8f38c0235229bbc1ec85b4377c4f58e2caed97105b53ab08a4468325869d"
+checksum = "aba7cc7b9afe0fcdb37112f4e9637642b7aa3bbeb5ada2002fe24d6b2b489532"
 dependencies = [
  "chrono",
- "deku 0.12.6",
+ "deku",
 ]
 
 [[package]]

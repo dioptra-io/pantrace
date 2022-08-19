@@ -3,13 +3,14 @@ use crate::warts_trace::to::warts_traceroute_to_internal;
 use std::io::Read;
 use warts::{Address, Object, Traceroute};
 
-pub struct WartsReader {
+// TODO: Rename to WartsTrace
+pub struct WartsTraceReader {
     traceroutes: Vec<(u32, String, Traceroute)>,
 }
 
-impl WartsReader {
-    pub fn new<R: Read>(mut input: R) -> WartsReader {
-        let mut reader = WartsReader {
+impl WartsTraceReader {
+    pub fn new<R: Read>(mut input: R) -> WartsTraceReader {
+        let mut reader = WartsTraceReader {
             traceroutes: Vec::new(),
         };
         // We currently read warts file in a single batch.
@@ -52,7 +53,7 @@ impl WartsReader {
     }
 }
 
-impl Iterator for WartsReader {
+impl Iterator for WartsTraceReader {
     type Item = anyhow::Result<Vec<TracerouteReply>>;
     fn next(&mut self) -> Option<Self::Item> {
         match self.traceroutes.pop() {
