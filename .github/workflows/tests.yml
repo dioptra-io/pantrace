@@ -17,7 +17,7 @@ jobs:
       - name: Install grcov
         run: cargo install grcov
       - name: Install llvm-tools-preview
-        run: rustup component add llvm-tools-preview 
+        run: rustup component add llvm-tools-preview
       - name: Build
         run: cargo build --verbose
         env:
@@ -28,7 +28,7 @@ jobs:
           RUSTFLAGS: "-Cinstrument-coverage"
           LLVM_PROFILE_FILE: "%p-%m.profraw"
       - name: Compute coverage
-        run: grcov . --binary-path ./target/debug/ --source-dir . --output-path lcov.info --output-type lcov --branch --ignore-not-existing --ignore "/*"
+        run: grcov . --binary-path ./target/debug/ --source-dir . --output-path lcov.info --output-type lcov --branch --ignore-not-existing
       - uses: codecov/codecov-action@v3
 
   docker:
