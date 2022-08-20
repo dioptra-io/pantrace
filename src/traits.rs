@@ -1,6 +1,6 @@
 use crate::internal::models::TracerouteReply;
 
-pub type TracerouteReader = dyn Iterator<Item = anyhow::Result<Vec<TracerouteReply>>>;
+pub trait TracerouteReader = Iterator<Item = anyhow::Result<Vec<TracerouteReply>>>;
 
 pub trait TracerouteWriter {
     fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()>;

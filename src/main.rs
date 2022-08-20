@@ -62,7 +62,7 @@ fn main() -> Result<()> {
         None => Box::new(stdout().lock()),
     };
 
-    let reader: Box<TracerouteReader> = match args.from {
+    let reader: Box<dyn TracerouteReader> = match args.from {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),

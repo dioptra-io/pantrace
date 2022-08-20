@@ -46,4 +46,7 @@ impl TracerouteReply {
             6
         }
     }
+    pub fn rtt_ms(&self) -> f64 {
+        (self.rtt as f64) / 10.0
+    }
 }
