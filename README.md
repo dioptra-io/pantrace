@@ -34,5 +34,5 @@ curl -L -o example.ndjson \
 cat example.ndjson | pantrace --standalone --from atlas --to warts > example.warts
 
 # Convert from a file to a file
-pantrace --standalone  --from atlas --to warts --input example.ndjson --output example.warts
+pantrace --standalone --from atlas --to warts --input example.ndjson --output example.warts
 ```
