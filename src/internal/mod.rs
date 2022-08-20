@@ -1,3 +1,4 @@
+//! Pantrace internal format.
 pub mod models;
 pub mod reader;
 pub mod writer;

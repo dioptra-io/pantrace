@@ -1,3 +1,4 @@
+//! Functions common to the various traceroute formats.
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
 use std::net::{IpAddr, Ipv6Addr};

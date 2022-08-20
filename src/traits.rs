@@ -1,3 +1,4 @@
+//! Traits that must be implemented by traceroute formats.
 use crate::internal::models::TracerouteReply;
 
 pub trait TracerouteReader = Iterator<Item = anyhow::Result<Vec<TracerouteReply>>>;

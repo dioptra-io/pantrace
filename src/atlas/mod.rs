@@ -1,3 +1,4 @@
+//! RIPE Atlas newline-delimited JSON format.
 pub mod from;
 pub mod models;
 pub mod reader;
