@@ -1,7 +1,22 @@
 //! Functions common to the various traceroute formats.
+use phf::phf_map;
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
 use std::net::{IpAddr, Ipv6Addr};
+
+pub static PROTOCOL_TO_STRING: phf::Map<u8, &'static str> = phf_map! {
+    1u8 => "ICMP",
+    6u8 => "TCP",
+    17u8 => "UDP",
+    58u8 => "ICMP6"
+};
+
+pub static PROTOCOL_FROM_STRING: phf::Map<&'static str, u8> = phf_map! {
+    "ICMP" => 1u8,
+    "ICMP6" => 58u8,
+    "TCP" => 6u8,
+    "UDP" => 17u8
+};
 
 pub fn default_ipaddr() -> Option<IpAddr> {
     None
@@ -24,25 +39,5 @@ pub fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {
     match addr {
         IpAddr::V4(x) => x.to_ipv6_mapped(),
         IpAddr::V6(x) => x,
-    }
-}
-
-pub fn protocol_number(s: &str) -> u8 {
-    match s {
-        "ICMP" => 1,
-        "ICMP6" => 58,
-        "TCP" => 6,
-        "UDP" => 17,
-        _ => panic!("Unsupported protocol: {}", s),
-    }
-}
-
-pub fn protocol_string(n: u8) -> String {
-    match n {
-        1 => String::from("ICMP"),
-        6 => String::from("TCP"),
-        17 => String::from("UDP"),
-        58 => String::from("ICMP6"),
-        _ => panic!("Unsupported protocol: {}", n),
     }
 }

@@ -3,7 +3,7 @@ use crate::atlas::models::{
     AtlasTracerouteReply,
 };
 use crate::internal::models::{MplsEntry, TracerouteReply};
-use crate::utils::{ipv6_from_ip, protocol_number};
+use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
 use chrono::{DateTime, TimeZone, Utc};
 use std::net::{IpAddr, Ipv6Addr};
 
@@ -64,7 +64,7 @@ impl AtlasTracerouteReply {
             measurement_id: msm_id.to_string(),
             agent_id: prb_id.to_string(),
             traceroute_start: timestamp,
-            probe_protocol: protocol_number(proto),
+            probe_protocol: PROTOCOL_FROM_STRING[proto],
             probe_src_addr: ipv6_from_ip(src_addr),
             probe_dst_addr: ipv6_from_ip(dst_addr),
             probe_src_port: paris_id,
