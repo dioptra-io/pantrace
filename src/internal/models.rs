@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use seahash::hash;
 use serde::{Deserialize, Serialize};
 use std::net::Ipv6Addr;
 
@@ -45,6 +46,19 @@ impl TracerouteReply {
         } else {
             6
         }
+    }
+    // Not all platform use an integer agent id.
+    // Our strategy is to first try to parse the id as an int, and fall back on the hash otherwise.
+    pub fn agent_id_int(&self) -> u64 {
+        self.agent_id
+            .parse()
+            .unwrap_or_else(|_| hash(self.agent_id.as_bytes()))
+    }
+    // See `agent_id_int`.
+    pub fn measurement_id_int(&self) -> u64 {
+        self.measurement_id
+            .parse()
+            .unwrap_or_else(|_| hash(self.measurement_id.as_bytes()))
     }
     pub fn rtt_ms(&self) -> f64 {
         (self.rtt as f64) / 10.0

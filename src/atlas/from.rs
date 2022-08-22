@@ -8,10 +8,10 @@ use std::net::IpAddr;
 
 impl AtlasTraceroute {
     pub fn from_internal(replies: &[TracerouteReply]) -> Option<Self> {
+        // TODO: assert that all replies have the same flow id?
         if replies.is_empty() {
             return None;
         }
-        // TODO: assert same-flow assumption?
         let ref_reply = &replies[0];
         let start_timestamp = replies
             .iter()
@@ -29,16 +29,16 @@ impl AtlasTraceroute {
             dst_name: ref_reply.probe_dst_addr.to_string(),
             endtime: end_timestamp,
             from: Some(IpAddr::from(ref_reply.probe_src_addr)),
-            msm_id: 0, // TODO
-            msm_name: "TODO".to_string(),
+            msm_id: ref_reply.measurement_id_int(),
+            msm_name: ref_reply.measurement_id.clone(),
             paris_id: ref_reply.probe_src_port,
-            prb_id: 0, // TODO
+            prb_id: ref_reply.agent_id_int(),
             proto: PROTOCOL_TO_STRING[&ref_reply.probe_protocol].to_string(),
             result: replies
                 .group_by(|a, b| a.probe_ttl == b.probe_ttl)
                 .map(AtlasTracerouteHop::from_internal)
                 .collect(),
-            size: 0, // TODO
+            size: 0, // TODO: size of the *probe*.
             src_addr: Some(IpAddr::from(ref_reply.probe_src_addr)),
             timestamp: start_timestamp,
             kind: "traceroute".to_string(),
@@ -48,7 +48,7 @@ impl AtlasTraceroute {
 
 impl AtlasTracerouteHop {
     pub fn from_internal(replies: &[TracerouteReply]) -> Self {
-        // TODO: assert same-hop assumption?
+        // TODO: assert that all replies are for the same hop?
         let ref_reply = &replies[0];
         AtlasTracerouteHop {
             hop: ref_reply.probe_ttl,
