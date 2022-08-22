@@ -3,7 +3,7 @@ use chrono::Duration;
 use std::ops::Sub;
 use warts::{Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
 
-pub fn warts_traceroute_from_internal(replies: &[TracerouteReply]) -> Traceroute {
+pub fn warts_trace_from_internal(replies: &[TracerouteReply]) -> Traceroute {
     let mut t = Traceroute {
         length: 0,
         flags: Default::default(),

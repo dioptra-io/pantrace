@@ -2,8 +2,8 @@ use chrono::{TimeZone, Utc};
 use pantrace::atlas::models::AtlasTraceroute;
 use pantrace::internal::models::TracerouteReply;
 use pantrace::iris::models::IrisTraceroute;
-use pantrace::warts_trace::from::warts_traceroute_from_internal;
-use pantrace::warts_trace::to::warts_traceroute_to_internal;
+use pantrace::warts_trace::from::warts_trace_from_internal;
+use pantrace::warts_trace::to::warts_trace_to_internal;
 use std::net::Ipv6Addr;
 use std::str::FromStr;
 
@@ -50,7 +50,6 @@ fn test_iris() {
 #[test]
 fn test_warts_trace() {
     let before = test_replies();
-    let after =
-        warts_traceroute_to_internal(&warts_traceroute_from_internal(&before), 1234, "5678");
+    let after = warts_trace_to_internal(&warts_trace_from_internal(&before), 1234, "5678");
     // assert_eq!(before, after);
 }

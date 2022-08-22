@@ -5,7 +5,7 @@ use std::net::Ipv6Addr;
 use std::ops::Add;
 use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
 
-pub fn warts_traceroute_to_internal(
+pub fn warts_trace_to_internal(
     traceroute: &Traceroute,
     cycle_id: u32,
     monitor_name: &str,

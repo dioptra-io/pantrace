@@ -1,6 +1,6 @@
 use crate::internal::models::TracerouteReply;
 use crate::traits::TracerouteWriter;
-use crate::warts_trace::from::warts_traceroute_from_internal;
+use crate::warts_trace::from::warts_trace_from_internal;
 use chrono::Utc;
 use std::ffi::CString;
 use std::io::Write;
@@ -18,7 +18,7 @@ impl<W: Write> WartsTraceWriter<W> {
 
 impl<W: Write> TracerouteWriter for WartsTraceWriter<W> {
     fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        let traceroute = warts_traceroute_from_internal(replies);
+        let traceroute = warts_trace_from_internal(replies);
         let bytes = Object::Traceroute(traceroute).to_bytes()?;
         self.output.write_all(&bytes)?;
         Ok(())
