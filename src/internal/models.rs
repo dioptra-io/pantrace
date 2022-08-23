@@ -22,6 +22,7 @@ pub struct TracerouteReply {
     pub probe_dst_port: u16,
     pub capture_timestamp: DateTime<Utc>,
     pub probe_ttl: u8,
+    pub quoted_ttl: u8,
     pub reply_ttl: u8,
     pub reply_size: u16,
     pub reply_mpls_labels: Vec<MplsEntry>,

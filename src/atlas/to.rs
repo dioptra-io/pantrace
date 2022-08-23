@@ -69,9 +69,11 @@ impl AtlasTracerouteReply {
             probe_dst_addr: ipv6_from_ip(dst_addr),
             probe_src_port: paris_id,
             probe_dst_port: 0,
-            // Atlas does not store capture timestamp.
+            // Atlas does not store the capture timestamp.
             capture_timestamp: Utc.timestamp(0, 0),
             probe_ttl: hop,
+            // Atlas does not store the quoted TTL.
+            quoted_ttl: 0,
             reply_ttl: self.ttl,
             reply_size: self.size,
             reply_mpls_labels: self

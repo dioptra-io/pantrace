@@ -4,6 +4,9 @@ use std::net::Ipv6Addr;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisTraceroute {
+    pub measurement_uuid: String,
+    pub agent_uuid: String,
+    pub traceroute_start: DateTime<Utc>,
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,
@@ -22,19 +25,36 @@ pub struct IrisMultipathTraceroute {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisReply(
-    pub DateTime<Utc>,      // capture_timestamp
-    pub u8,                 // probe_ttl
-    pub u8,                 // reply_ttl
-    pub u16,                // reply_size
-    pub Vec<IrisMplsEntry>, // mpls_labels
-    pub Ipv6Addr,           // reply_src_addr
-    pub u16,                // rtt
+    /// `capture_timestamp`
+    pub DateTime<Utc>,
+    /// `probe_ttl`
+    pub u8,
+    /// `quoted_ttl`
+    pub u8,
+    /// `reply_icmp_type`
+    pub u8,
+    /// `reply_icmp_code`
+    pub u8,
+    /// `reply_ttl`
+    pub u8,
+    /// `reply_size`
+    pub u16,
+    /// `mpls_labels`
+    pub Vec<IrisMplsEntry>,
+    /// `reply_src_addr`
+    pub Ipv6Addr,
+    /// `rtt`
+    pub u16,
 );
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisMplsEntry(
-    pub u32, // label
-    pub u8,  // exp
-    pub u8,  // bottom-of-stack
-    pub u8,  // ttl
+    /// `label`
+    pub u32,
+    /// `exp`
+    pub u8,
+    /// `bottom-of-stack`
+    pub u8,
+    /// `ttl`
+    pub u8,
 );

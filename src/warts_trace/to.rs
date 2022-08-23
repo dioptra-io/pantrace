@@ -62,6 +62,7 @@ fn warts_trace_probe_to_internal(
         probe_dst_port: dst_port.unwrap_or(0),
         capture_timestamp,
         probe_ttl: tp.probe_ttl.unwrap_or(0),
+        quoted_ttl: tp.quoted_ttl.unwrap_or(0),
         reply_ttl: tp.reply_ttl.unwrap_or(0),
         reply_size: tp.reply_size.unwrap_or(0),
         reply_mpls_labels: vec![], // TODO

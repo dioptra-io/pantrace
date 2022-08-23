@@ -20,6 +20,7 @@ fn test_replies() -> Vec<TracerouteReply> {
         probe_dst_port: 33434,
         capture_timestamp: Utc.ymd(2022, 2, 1).and_hms(12, 23, 35),
         probe_ttl: 8,
+        quoted_ttl: 1,
         reply_ttl: 32,
         reply_size: 42,
         reply_mpls_labels: vec![],
@@ -34,9 +35,7 @@ fn test_replies() -> Vec<TracerouteReply> {
 #[test]
 fn test_atlas() {
     let before = test_replies();
-    let after = AtlasTraceroute::from_internal(&before)
-        .unwrap()
-        .to_internal();
+    let after = AtlasTraceroute::from_internal(&before).to_internal();
     // assert_eq!(before, after);
 }
 
@@ -44,12 +43,12 @@ fn test_atlas() {
 fn test_iris() {
     let before = test_replies();
     let after = IrisTraceroute::from_internal(&before).to_internal();
-    // assert_eq!(before, after);
+    assert_eq!(before, after);
 }
 
 #[test]
 fn test_warts_trace() {
     let before = test_replies();
     let after = warts_trace_to_internal(&warts_trace_from_internal(&before), 1234, "5678");
-    // assert_eq!(before, after);
+    assert_eq!(before, after);
 }

@@ -15,10 +15,12 @@ impl<W: Write> IrisWriter<W> {
 
 impl<W: Write> TracerouteWriter for IrisWriter<W> {
     fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        let traceroute = IrisTraceroute::from_internal(replies);
-        let bytes = serde_json::to_vec(&traceroute)?;
-        self.output.write_all(&bytes)?;
-        self.output.write_all(b"\n")?;
+        if !replies.is_empty() {
+            let traceroute = IrisTraceroute::from_internal(replies);
+            let bytes = serde_json::to_vec(&traceroute)?;
+            self.output.write_all(&bytes)?;
+            self.output.write_all(b"\n")?;
+        }
         Ok(())
     }
 }
