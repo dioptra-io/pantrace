@@ -5,6 +5,7 @@ use std::net::Ipv6Addr;
 use std::ops::Add;
 use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
 
+/// Build an array of [TracerouteReply] from a [Traceroute].
 pub fn warts_trace_to_internal(
     traceroute: &Traceroute,
     cycle_id: u32,
