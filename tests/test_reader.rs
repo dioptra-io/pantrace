@@ -1,6 +1,6 @@
 use anyhow::Result;
 use pantrace::atlas::AtlasReader;
-use pantrace::internal::models::TracerouteReply;
+use pantrace::internal::TracerouteReply;
 use pantrace::iris::IrisReader;
 use pantrace::warts_trace::WartsTraceReader;
 use std::fs::File;

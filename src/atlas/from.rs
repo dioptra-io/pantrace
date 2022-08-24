@@ -2,7 +2,7 @@ use crate::atlas::models::{
     AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::models::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, TracerouteReply};
 use crate::utils::PROTOCOL_TO_STRING;
 use std::net::IpAddr;
 

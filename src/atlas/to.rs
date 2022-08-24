@@ -2,7 +2,7 @@ use crate::atlas::models::{
     AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::models::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, TracerouteReply};
 use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
 use chrono::{DateTime, TimeZone, Utc};
 use std::net::{IpAddr, Ipv6Addr};

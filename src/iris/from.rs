@@ -1,4 +1,4 @@
-use crate::internal::models::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, TracerouteReply};
 use crate::iris::models::{IrisMplsEntry, IrisReply, IrisTraceroute};
 
 impl IrisTraceroute {

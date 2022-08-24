@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use crate::warts_trace::to::warts_trace_to_internal;
 use std::io::Read;
 use warts::{Address, Object, Traceroute};

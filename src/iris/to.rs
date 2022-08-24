@@ -1,4 +1,4 @@
-use crate::internal::models::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, TracerouteReply};
 use crate::iris::models::{IrisMplsEntry, IrisReply, IrisTraceroute};
 use chrono::{DateTime, Utc};
 use std::net::Ipv6Addr;

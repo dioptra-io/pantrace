@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use crate::iris::models::IrisTraceroute;
 use crate::traits::TracerouteWriter;
 use std::io::Write;

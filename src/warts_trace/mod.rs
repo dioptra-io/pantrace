@@ -1,8 +1,10 @@
 //! Scamper's warts format with trace objects.
-pub mod from;
-pub mod reader;
-pub mod to;
-pub mod writer;
+mod from;
+mod reader;
+mod to;
+mod writer;
 
-pub use reader::WartsTraceReader;
-pub use writer::WartsTraceWriter;
+pub use from::*;
+pub use reader::*;
+pub use to::*;
+pub use writer::*;

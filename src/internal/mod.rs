@@ -1,7 +1,8 @@
 //! Pantrace internal format.
-pub mod models;
-pub mod reader;
-pub mod writer;
+mod models;
+mod reader;
+mod writer;
 
-pub use reader::InternalReader;
-pub use writer::InternalWriter;
+pub use models::*;
+pub use reader::*;
+pub use writer::*;

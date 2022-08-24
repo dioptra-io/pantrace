@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use chrono::Duration;
 use std::ops::Sub;
 use warts::{Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};

@@ -41,11 +41,12 @@
 //! FORMAT JSONEachRow
 //! SETTINGS optimize_aggregation_in_order = 1
 //! ```
-pub mod from;
-pub mod models;
-pub mod reader;
-pub mod to;
-pub mod writer;
+mod from;
+mod models;
+mod reader;
+mod to;
+mod writer;
 
-pub use reader::IrisReader;
-pub use writer::IrisWriter;
+pub use models::*;
+pub use reader::*;
+pub use writer::*;

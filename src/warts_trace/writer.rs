@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use crate::traits::TracerouteWriter;
 use crate::warts_trace::from::warts_trace_from_internal;
 use chrono::Utc;

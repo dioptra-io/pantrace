@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use crate::iris::models::IrisTraceroute;
 use std::io::{BufRead, Lines};
 

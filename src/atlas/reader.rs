@@ -1,5 +1,5 @@
 use crate::atlas::models::AtlasTraceroute;
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use std::io::{BufRead, Lines};
 
 pub struct AtlasReader<R: BufRead> {

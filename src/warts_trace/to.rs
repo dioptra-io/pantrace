@@ -1,4 +1,4 @@
-use crate::internal::models::TracerouteReply;
+use crate::internal::TracerouteReply;
 use chrono::TimeZone;
 use chrono::{Duration, Utc};
 use std::net::Ipv6Addr;

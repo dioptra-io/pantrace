@@ -1,9 +1,9 @@
 use chrono::{TimeZone, Utc};
-use pantrace::atlas::models::AtlasTraceroute;
-use pantrace::internal::models::TracerouteReply;
-use pantrace::iris::models::IrisTraceroute;
-use pantrace::warts_trace::from::warts_trace_from_internal;
-use pantrace::warts_trace::to::warts_trace_to_internal;
+use pantrace::atlas::AtlasTraceroute;
+use pantrace::internal::TracerouteReply;
+use pantrace::iris::IrisTraceroute;
+use pantrace::warts_trace::warts_trace_from_internal;
+use pantrace::warts_trace::warts_trace_to_internal;
 use std::net::Ipv6Addr;
 use std::str::FromStr;
 
