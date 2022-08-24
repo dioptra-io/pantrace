@@ -1,4 +1,4 @@
-use crate::atlas::models::{
+use crate::atlas::{
     AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };

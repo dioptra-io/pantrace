@@ -1,4 +1,4 @@
-use crate::atlas::models::AtlasTraceroute;
+use crate::atlas::AtlasTraceroute;
 use crate::internal::TracerouteReply;
 use std::io::{BufRead, Lines};
 
