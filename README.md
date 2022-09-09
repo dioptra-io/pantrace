@@ -28,11 +28,11 @@ docker run ghcr.io/dioptra-io/pantrace:main --help
 ```bash
 # Fetch traceroute results from the RIPE Atlas API
 curl -L -o example.ndjson \
-    "https://atlas.ripe.net/api/v2/measurements/23119200/results/?start=1625097600&stop=1625788799&format=txt&probe_ids=6479"
+    "https://atlas.ripe.net/api/v2/measurements/23119199/results/?start=1625097600&stop=1625788799&format=txt&probe_ids=6479"
   
 # Convert from the standard input to the standard output
-cat example.ndjson | pantrace --standalone --from atlas --to warts > example.warts
+cat example.ndjson | pantrace --standalone --from atlas --to warts-trace > example.warts
 
 # Convert from a file to a file
-pantrace --standalone --from atlas --to warts --input example.ndjson --output example.warts
+pantrace --standalone --from atlas --to warts-trace --input example.ndjson --output example.warts
 ```
