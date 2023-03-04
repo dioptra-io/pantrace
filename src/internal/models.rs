@@ -17,12 +17,10 @@ pub struct Traceroute {
     pub agent_id: String,
     pub start_time: DateTime<Utc>,
     pub end_time: DateTime<Utc>,
-    // TODO: Remove probe_ and reply_ from field names?
-    // TODO: Enum for this.
-    pub probe_protocol: u8,
-    // TODO: Make these optional to simplify some code (e.g. RIPE Atlas?)
-    pub probe_src_addr: Ipv6Addr,
-    pub probe_dst_addr: Ipv6Addr,
+    // TODO: Enum for protocol.
+    pub protocol: u8,
+    pub src_addr: Ipv6Addr,
+    pub dst_addr: Ipv6Addr,
     pub flows: Vec<TracerouteFlow>,
 }
 
@@ -30,23 +28,23 @@ pub struct Traceroute {
 pub struct TracerouteFlow {
     // TODO: Store information about the method used to vary the flow ID (src-port, dst-port, ...)
     // TODO: Use enum/variant here to store other fields than src/dst ports?
-    pub probe_src_port: u16,
-    pub probe_dst_port: u16,
+    pub src_port: u16,
+    pub dst_port: u16,
     pub replies: Vec<TracerouteReply>,
 }
 
 // TODO: Store platform-specific metadata in a hashmap, to allow for proper round-tripping.
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteReply {
-    pub capture_timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
     pub probe_ttl: u8,
     pub quoted_ttl: u8,
-    pub reply_ttl: u8,
-    pub reply_size: u16,
-    pub reply_mpls_labels: Vec<MplsEntry>,
-    pub reply_src_addr: Ipv6Addr,
-    pub reply_icmp_type: u8,
-    pub reply_icmp_code: u8,
+    pub ttl: u8,
+    pub size: u16,
+    pub mpls_labels: Vec<MplsEntry>,
+    pub addr: Ipv6Addr,
+    pub icmp_type: u8,
+    pub icmp_code: u8,
     pub rtt: f64,
 }
 
@@ -60,7 +58,7 @@ pub struct MplsEntry {
 
 impl Traceroute {
     pub fn af(&self) -> u8 {
-        if self.probe_dst_addr.to_ipv4_mapped().is_some() {
+        if self.dst_addr.to_ipv4_mapped().is_some() {
             4
         } else {
             6
@@ -83,7 +81,7 @@ impl Traceroute {
 
 impl TracerouteReply {
     pub fn send_timestamp(&self) -> DateTime<Utc> {
-        self.capture_timestamp
+        self.timestamp
             .sub(Duration::microseconds((self.rtt * 1000.0) as i64))
     }
 }

@@ -7,15 +7,15 @@ use clap::{AppSettings, ArgEnum, Parser};
 use pantrace::atlas::{AtlasReader, AtlasWriter};
 use pantrace::internal::{InternalReader, InternalWriter};
 use pantrace::iris::{IrisReader, IrisWriter};
+use pantrace::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
-use pantrace::warts_trace::{WartsTraceReader, WartsTraceWriter};
 
 #[derive(ArgEnum, Clone, Debug, PartialEq)]
 enum Format {
     Atlas,
     Internal,
     Iris,
-    WartsTrace,
+    ScamperTraceWarts,
 }
 
 #[derive(Debug, Parser)]
@@ -67,14 +67,14 @@ fn main() -> Result<()> {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
-        Format::WartsTrace => Box::new(WartsTraceReader::new(input)),
+        Format::ScamperTraceWarts => Box::new(ScamperTraceWartsReader::new(input)),
     };
 
     let mut writer: Box<dyn TracerouteWriter> = match args.to {
         Format::Atlas => Box::new(AtlasWriter::new(output)),
         Format::Internal => Box::new(InternalWriter::new(output)),
         Format::Iris => Box::new(IrisWriter::new(output)),
-        Format::WartsTrace => Box::new(WartsTraceWriter::new(output)),
+        Format::ScamperTraceWarts => Box::new(ScamperTraceWartsWriter::new(output)),
     };
 
     if args.standalone {

@@ -5,20 +5,20 @@ use chrono::Utc;
 use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
 
 use crate::internal::Traceroute;
+use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
 use crate::traits::TracerouteWriter;
-use crate::warts_trace::models::WartsTracerouteWithMeta;
 
-pub struct WartsTraceWriter<W: Write> {
+pub struct ScamperTraceWartsWriter<W: Write> {
     output: W,
 }
 
-impl<W: Write> WartsTraceWriter<W> {
-    pub fn new(output: W) -> WartsTraceWriter<W> {
-        WartsTraceWriter { output }
+impl<W: Write> ScamperTraceWartsWriter<W> {
+    pub fn new(output: W) -> ScamperTraceWartsWriter<W> {
+        ScamperTraceWartsWriter { output }
     }
 }
 
-impl<W: Write> TracerouteWriter for WartsTraceWriter<W> {
+impl<W: Write> TracerouteWriter for ScamperTraceWartsWriter<W> {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
         let traceroutes: Vec<WartsTracerouteWithMeta> = traceroute.into();
         for traceroute in traceroutes {

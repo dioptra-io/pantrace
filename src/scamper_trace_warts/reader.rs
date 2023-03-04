@@ -3,17 +3,17 @@ use std::io::Read;
 use warts::{Address, Object};
 
 use crate::internal::Traceroute;
-use crate::warts_trace::models::WartsTracerouteWithMeta;
+use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
 
-pub struct WartsTraceReader {
+pub struct ScamperTraceWartsReader {
     cycle_id: u32,
     monitor_name: String,
     traceroutes: Vec<WartsTracerouteWithMeta>,
 }
 
-impl WartsTraceReader {
-    pub fn new<R: Read>(mut input: R) -> WartsTraceReader {
-        let mut reader = WartsTraceReader {
+impl ScamperTraceWartsReader {
+    pub fn new<R: Read>(mut input: R) -> ScamperTraceWartsReader {
+        let mut reader = ScamperTraceWartsReader {
             cycle_id: 0,
             monitor_name: "unknown".to_string(),
             traceroutes: Vec::new(),
@@ -71,7 +71,7 @@ impl WartsTraceReader {
     }
 }
 
-impl Iterator for WartsTraceReader {
+impl Iterator for ScamperTraceWartsReader {
     type Item = anyhow::Result<Traceroute>;
     fn next(&mut self) -> Option<Self::Item> {
         self.traceroutes

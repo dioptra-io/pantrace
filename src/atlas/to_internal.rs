@@ -1,4 +1,4 @@
-use std::net::{IpAddr, Ipv6Addr};
+use std::net::Ipv6Addr;
 
 use chrono::{TimeZone, Utc};
 
@@ -20,21 +20,16 @@ impl From<&AtlasTraceroute> for Traceroute {
             agent_id: traceroute.prb_id.to_string(),
             start_time: traceroute.timestamp,
             end_time: traceroute.endtime,
-            probe_protocol: PROTOCOL_FROM_STRING[&traceroute.proto],
-            // TODO: Simplify this by making src/dst optional in internal model.
-            probe_src_addr: ipv6_from_ip(
-                traceroute
-                    .src_addr
-                    .unwrap_or(IpAddr::from(Ipv6Addr::UNSPECIFIED)),
-            ),
-            probe_dst_addr: ipv6_from_ip(
-                traceroute
-                    .dst_addr
-                    .unwrap_or(IpAddr::from(Ipv6Addr::UNSPECIFIED)),
-            ),
+            protocol: PROTOCOL_FROM_STRING[&traceroute.proto],
+            src_addr: traceroute
+                .src_addr
+                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_ip),
+            dst_addr: traceroute
+                .dst_addr
+                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_ip),
             flows: vec![TracerouteFlow {
-                probe_src_port: traceroute.paris_id,
-                probe_dst_port: 0,
+                src_port: traceroute.paris_id,
+                dst_port: 0,
                 replies: traceroute
                     .result
                     .iter()
@@ -59,20 +54,20 @@ impl From<(&AtlasTracerouteReply, u8)> for TracerouteReply {
         let (reply, hop) = reply_with_hop;
         TracerouteReply {
             // Atlas does not store the capture timestamp.
-            capture_timestamp: Utc.timestamp_opt(0, 0).unwrap(),
+            timestamp: Utc.timestamp_opt(0, 0).unwrap(),
             probe_ttl: hop,
             // Atlas does not store the quoted TTL.
             quoted_ttl: 0,
-            reply_ttl: reply.ttl,
-            reply_size: reply.size,
-            reply_mpls_labels: reply
+            ttl: reply.ttl,
+            size: reply.size,
+            mpls_labels: reply
                 .icmpext
                 .iter()
                 .flat_map(<Vec<MplsEntry>>::from)
                 .collect(),
-            reply_src_addr: reply.from.map_or(Ipv6Addr::from(0), ipv6_from_ip),
-            reply_icmp_type: 0, // TODO: guess
-            reply_icmp_code: 0, // TODO: guess
+            addr: reply.from.map_or(Ipv6Addr::from(0), ipv6_from_ip),
+            icmp_type: reply.icmp_type(),
+            icmp_code: reply.icmp_code(),
             rtt: reply.rtt,
         }
     }

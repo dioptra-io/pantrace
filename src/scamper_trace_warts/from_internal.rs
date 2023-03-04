@@ -8,7 +8,7 @@ use warts::{
 };
 
 use crate::internal::{Traceroute, TracerouteReply};
-use crate::warts_trace::models::WartsTracerouteWithMeta;
+use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
 
 impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
     fn from(traceroute: &Traceroute) -> Self {
@@ -32,8 +32,8 @@ impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
                     hop_limit: None,
                     trace_type: Some(TraceType::ICMPEchoParis),
                     probe_size: None,
-                    src_port: Some(flow.probe_src_port),
-                    dst_port: Some(flow.probe_dst_port),
+                    src_port: Some(flow.src_port),
+                    dst_port: Some(flow.dst_port),
                     first_ttl: None, // TODO
                     ip_tos: None,
                     timeout_sec: None,
@@ -45,8 +45,8 @@ impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
                     probes_sent: None,
                     interval_csec: None,
                     confidence_level: None,
-                    src_addr: Some(Address::from(traceroute.probe_src_addr)),
-                    dst_addr: Some(Address::from(traceroute.probe_dst_addr)),
+                    src_addr: Some(Address::from(traceroute.src_addr)),
+                    dst_addr: Some(Address::from(traceroute.dst_addr)),
                     user_id: None,
                     ip_offset: None,
                     router_addr: None,
@@ -72,14 +72,14 @@ impl From<&TracerouteReply> for TraceProbe {
             param_length: None,
             addr_id: None,
             probe_ttl: Some(reply.probe_ttl),
-            reply_ttl: Some(reply.reply_ttl),
+            reply_ttl: Some(reply.ttl),
             hop_flags: None, // TODO
             probe_id: None,
             rtt_usec: Some(reply.rtt as u32 * 100),
             icmp_type: Some(11),
             icmp_code: Some(0),
             probe_size: None,
-            reply_size: Some(reply.reply_size),
+            reply_size: Some(reply.size),
             reply_ip_id: None,
             reply_ip_tos: None,
             next_hop_mtu: None,
@@ -89,7 +89,7 @@ impl From<&TracerouteReply> for TraceProbe {
             quoted_tos: None,
             icmp_extensions_length: None,
             icmp_extensions: vec![], // TODO
-            addr: Some(Address::from(reply.reply_src_addr)),
+            addr: Some(Address::from(reply.addr)),
             tx: Some(Timeval::from(reply.send_timestamp().naive_utc())),
         };
         tp.fixup();

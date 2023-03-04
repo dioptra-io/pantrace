@@ -10,8 +10,6 @@ mod reader;
 mod to_internal;
 mod writer;
 
-// TODO: Rename to scamper_trace_warts
-
 pub use models::*;
 pub use reader::*;
 pub use writer::*;

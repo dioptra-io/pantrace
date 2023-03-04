@@ -75,3 +75,13 @@ pub struct AtlasIcmpExtMplsData {
     pub s: u8,
     pub ttl: u8,
 }
+
+impl AtlasTracerouteReply {
+    pub fn icmp_type(&self) -> u8 {
+        0 // TODO: Guess based on error string.
+    }
+
+    pub fn icmp_code(&self) -> u8 {
+        0 // TODO: Guess based on error string.
+    }
+}

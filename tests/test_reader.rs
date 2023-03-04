@@ -5,7 +5,7 @@ use anyhow::Result;
 use pantrace::atlas::AtlasReader;
 use pantrace::internal::Traceroute;
 use pantrace::iris::IrisReader;
-use pantrace::warts_trace::WartsTraceReader;
+use pantrace::scamper_trace_warts::ScamperTraceWartsReader;
 
 #[test]
 fn test_atlas() {
@@ -32,7 +32,7 @@ fn test_iris() {
 #[test]
 fn test_warts_trace() {
     let file = File::open("data/trace.warts").unwrap();
-    let reader = WartsTraceReader::new(BufReader::new(file));
+    let reader = ScamperTraceWartsReader::new(BufReader::new(file));
     let results: Vec<Result<Traceroute>> = reader.collect();
     for result in &results {
         assert!(result.is_ok());
