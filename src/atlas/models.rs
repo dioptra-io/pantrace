@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils::{default_ipaddr, empty_string_as_none};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasTraceroute {
     pub af: u8,
     pub dst_addr: Option<IpAddr>,
@@ -31,7 +31,7 @@ pub struct AtlasTraceroute {
     pub kind: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasTracerouteHop {
     #[serde(default)]
     pub hop: u8,
@@ -40,7 +40,7 @@ pub struct AtlasTracerouteHop {
     pub result: Vec<AtlasTracerouteReply>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasTracerouteReply {
     pub from: Option<IpAddr>,
     #[serde(default)]
@@ -53,14 +53,14 @@ pub struct AtlasTracerouteReply {
     pub icmpext: Vec<AtlasIcmpExt>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasIcmpExt {
     pub version: u8,
     pub rfc4884: u8,
     pub obj: Vec<AtlasIcmpExtObj>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasIcmpExtObj {
     pub class: u8,
     #[serde(rename = "type")]
@@ -68,7 +68,7 @@ pub struct AtlasIcmpExtObj {
     pub mpls: Vec<AtlasIcmpExtMplsData>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasIcmpExtMplsData {
     pub label: u32,
     pub exp: u8,
