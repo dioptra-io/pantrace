@@ -6,7 +6,7 @@ use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
 
 use crate::internal::Traceroute;
 use crate::traits::TracerouteWriter;
-use crate::warts_trace::from::warts_trace_from_internal;
+use crate::warts_trace::models::WartsTracerouteWithMeta;
 
 pub struct WartsTraceWriter<W: Write> {
     output: W,
@@ -20,9 +20,9 @@ impl<W: Write> WartsTraceWriter<W> {
 
 impl<W: Write> TracerouteWriter for WartsTraceWriter<W> {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
-        let traceroutes = warts_trace_from_internal(traceroute);
+        let traceroutes: Vec<WartsTracerouteWithMeta> = traceroute.into();
         for traceroute in traceroutes {
-            let bytes = Object::Traceroute(traceroute).to_bytes()?;
+            let bytes = Object::Traceroute(traceroute.traceroute).to_bytes()?;
             self.output.write_all(&bytes)?;
         }
         Ok(())

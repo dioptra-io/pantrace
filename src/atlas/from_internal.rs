@@ -64,7 +64,7 @@ impl AtlasTracerouteReply {
     pub fn from_internal(reply: &TracerouteReply) -> Self {
         AtlasTracerouteReply {
             from: Some(reply.reply_src_addr.to_canonical()),
-            rtt: reply.rtt_ms(),
+            rtt: reply.rtt,
             size: reply.reply_size,
             ttl: reply.reply_ttl,
             icmpext: vec![AtlasIcmpExt::from_internal(&reply.reply_mpls_labels)],

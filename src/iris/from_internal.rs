@@ -44,7 +44,7 @@ impl IrisReply {
                 .map(IrisMplsEntry::from_internal)
                 .collect(),
             reply.reply_src_addr,
-            reply.rtt,
+            (reply.rtt * 10.0) as u16,
         )
     }
 }

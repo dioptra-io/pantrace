@@ -1,14 +1,14 @@
 use std::io::Read;
 
-use warts::{Address, Object, Traceroute as WartsTraceroute};
+use warts::{Address, Object};
 
 use crate::internal::Traceroute;
-use crate::warts_trace::to::warts_trace_to_internal;
+use crate::warts_trace::models::WartsTracerouteWithMeta;
 
 pub struct WartsTraceReader {
     cycle_id: u32,
     monitor_name: String,
-    traceroutes: Vec<WartsTraceroute>,
+    traceroutes: Vec<WartsTracerouteWithMeta>,
 }
 
 impl WartsTraceReader {
@@ -60,7 +60,11 @@ impl WartsTraceReader {
                 object.dereference_with_table(&table);
             }
             if let Object::Traceroute(traceroute) = object {
-                reader.traceroutes.push(traceroute);
+                reader.traceroutes.push(WartsTracerouteWithMeta {
+                    cycle_id: reader.cycle_id,
+                    monitor_name: reader.monitor_name.to_string(),
+                    traceroute,
+                });
             }
         }
         reader
@@ -70,13 +74,8 @@ impl WartsTraceReader {
 impl Iterator for WartsTraceReader {
     type Item = anyhow::Result<Traceroute>;
     fn next(&mut self) -> Option<Self::Item> {
-        match self.traceroutes.pop() {
-            Some(traceroute) => {
-                let internal =
-                    warts_trace_to_internal(&traceroute, self.cycle_id, &self.monitor_name);
-                Some(Ok(internal))
-            }
-            _ => None,
-        }
+        self.traceroutes
+            .pop()
+            .map(|traceroute| Ok(traceroute.into()))
     }
 }

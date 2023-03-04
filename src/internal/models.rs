@@ -1,6 +1,7 @@
 use std::net::Ipv6Addr;
+use std::ops::Sub;
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use seahash::hash;
 use serde::{Deserialize, Serialize};
 
@@ -46,7 +47,7 @@ pub struct TracerouteReply {
     pub reply_src_addr: Ipv6Addr,
     pub reply_icmp_type: u8,
     pub reply_icmp_code: u8,
-    pub rtt: u16,
+    pub rtt: f64,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -81,7 +82,8 @@ impl Traceroute {
 }
 
 impl TracerouteReply {
-    pub fn rtt_ms(&self) -> f64 {
-        (self.rtt as f64) / 10.0
+    pub fn send_timestamp(&self) -> DateTime<Utc> {
+        self.capture_timestamp
+            .sub(Duration::microseconds((self.rtt * 1000.0) as i64))
     }
 }

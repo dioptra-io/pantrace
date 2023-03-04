@@ -43,7 +43,7 @@ impl IrisReply {
             reply_size: self.6,
             reply_mpls_labels: self.7.iter().map(IrisMplsEntry::to_internal).collect(),
             reply_src_addr: self.8,
-            rtt: self.9,
+            rtt: self.9 as f64 / 10.0,
         }
     }
 }

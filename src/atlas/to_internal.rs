@@ -68,7 +68,7 @@ impl AtlasTracerouteReply {
             reply_src_addr: self.from.map_or(Ipv6Addr::from(0), ipv6_from_ip),
             reply_icmp_type: 0, // TODO: guess
             reply_icmp_code: 0, // TODO: guess
-            rtt: (self.rtt * 10.0) as u16,
+            rtt: self.rtt,
         }
     }
 }

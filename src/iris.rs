@@ -41,10 +41,10 @@
 //! FORMAT JSONEachRow
 //! SETTINGS optimize_aggregation_in_order = 1
 //! ```
-mod from;
+mod from_internal;
 mod models;
 mod reader;
-mod to;
+mod to_internal;
 mod writer;
 
 pub use models::*;
