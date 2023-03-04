@@ -1,5 +1,3 @@
-use std::net::IpAddr;
-
 use crate::atlas::{
     AtlasIcmpExt,
     AtlasIcmpExtMplsData,
@@ -8,44 +6,42 @@ use crate::atlas::{
     AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, Traceroute, TracerouteReply};
 use crate::utils::PROTOCOL_TO_STRING;
+
+// TODO: Implement From<> trait instead of from_internal.
 
 impl AtlasTraceroute {
     /// Build an AtlasTraceroute from an array of TracerouteReply.
     /// There must be at-least one reply, and all replies must have the same flow identifier.
-    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
-        let ref_reply = &replies[0];
-        let start_timestamp = replies
+    pub fn from_internal(traceroute: &Traceroute) -> Vec<Self> {
+        traceroute
+            .flows
             .iter()
-            .map(|reply| reply.capture_timestamp)
-            .min()
-            .unwrap();
-        let end_timestamp = replies
-            .iter()
-            .map(|reply| reply.capture_timestamp)
-            .max()
-            .unwrap();
-        AtlasTraceroute {
-            af: ref_reply.af(),
-            dst_addr: Some(IpAddr::from(ref_reply.probe_dst_addr)),
-            dst_name: ref_reply.probe_dst_addr.to_string(),
-            endtime: end_timestamp,
-            from: Some(IpAddr::from(ref_reply.probe_src_addr)),
-            msm_id: ref_reply.measurement_id_int(),
-            msm_name: ref_reply.measurement_id.clone(),
-            paris_id: ref_reply.probe_src_port,
-            prb_id: ref_reply.agent_id_int(),
-            proto: PROTOCOL_TO_STRING[&ref_reply.probe_protocol].to_string(),
-            result: replies
-                .group_by(|a, b| a.probe_ttl == b.probe_ttl)
-                .map(AtlasTracerouteHop::from_internal)
-                .collect(),
-            size: 0, // TODO: size of the *probe*.
-            src_addr: Some(IpAddr::from(ref_reply.probe_src_addr)),
-            timestamp: start_timestamp,
-            kind: "traceroute".to_string(),
-        }
+            .map(|flow| {
+                AtlasTraceroute {
+                    af: traceroute.af(),
+                    dst_addr: Some(traceroute.probe_dst_addr.to_canonical()),
+                    dst_name: traceroute.probe_dst_addr.to_string(),
+                    endtime: traceroute.end_time,
+                    from: Some(traceroute.probe_src_addr.to_canonical()),
+                    msm_id: traceroute.measurement_id_int(),
+                    msm_name: traceroute.measurement_id.clone(),
+                    paris_id: flow.probe_src_port,
+                    prb_id: traceroute.agent_id_int(),
+                    proto: PROTOCOL_TO_STRING[&traceroute.probe_protocol].to_string(),
+                    result: flow
+                        .replies
+                        .group_by(|a, b| a.probe_ttl == b.probe_ttl)
+                        .map(AtlasTracerouteHop::from_internal)
+                        .collect(),
+                    size: 0, // TODO: size of the *probe*.
+                    src_addr: Some(traceroute.probe_src_addr.to_canonical()),
+                    timestamp: traceroute.start_time,
+                    kind: "traceroute".to_string(),
+                }
+            })
+            .collect()
     }
 }
 
@@ -67,7 +63,7 @@ impl AtlasTracerouteHop {
 impl AtlasTracerouteReply {
     pub fn from_internal(reply: &TracerouteReply) -> Self {
         AtlasTracerouteReply {
-            from: Some(IpAddr::from(reply.reply_src_addr)),
+            from: Some(reply.reply_src_addr.to_canonical()),
             rtt: reply.rtt_ms(),
             size: reply.reply_size,
             ttl: reply.reply_ttl,

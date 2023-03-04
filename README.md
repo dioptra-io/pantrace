@@ -42,3 +42,6 @@ cat example.ndjson | pantrace --standalone --from atlas --to warts-trace > examp
 # Convert from a file to a file
 pantrace --standalone --from atlas --to warts-trace --input example.ndjson --output example.warts
 ```
+
+TODO: Show example with bigquery and M-Lab traceroutes.
+TODO: Compare/benchmarks with scamper sc_warts2json

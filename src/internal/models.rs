@@ -4,9 +4,8 @@ use chrono::{DateTime, Utc};
 use seahash::hash;
 use serde::{Deserialize, Serialize};
 
-// TODO: Store information about the method used to vary the flow ID (src-port, dst-port, ...)
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct TracerouteReply {
+pub struct Traceroute {
     /// Platform-specific measurement identifier:
     /// `msm_id` on Atlas, `cycle_id` on Scamper / Ark, `measurement_uuid` on Iris...
     /// The precise semantics of this field depends on the platform. In general, assume that a same
@@ -15,12 +14,29 @@ pub struct TracerouteReply {
     pub measurement_id: String,
     /// Platform-specific vantage point identifier.
     pub agent_id: String,
-    pub traceroute_start: DateTime<Utc>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: DateTime<Utc>,
+    // TODO: Remove probe_ and reply_ from field names?
+    // TODO: Enum for this.
     pub probe_protocol: u8,
+    // TODO: Make these optional to simplify some code (e.g. RIPE Atlas?)
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,
+    pub flows: Vec<TracerouteFlow>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct TracerouteFlow {
+    // TODO: Store information about the method used to vary the flow ID (src-port, dst-port, ...)
+    // TODO: Use enum/variant here to store other fields than src/dst ports?
     pub probe_src_port: u16,
     pub probe_dst_port: u16,
+    pub replies: Vec<TracerouteReply>,
+}
+
+// TODO: Store platform-specific metadata in a hashmap, to allow for proper round-tripping.
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct TracerouteReply {
     pub capture_timestamp: DateTime<Utc>,
     pub probe_ttl: u8,
     pub quoted_ttl: u8,
@@ -41,7 +57,7 @@ pub struct MplsEntry {
     pub ttl: u8,
 }
 
-impl TracerouteReply {
+impl Traceroute {
     pub fn af(&self) -> u8 {
         if self.probe_dst_addr.to_ipv4_mapped().is_some() {
             4
@@ -62,6 +78,9 @@ impl TracerouteReply {
             .parse()
             .unwrap_or_else(|_| hash(self.measurement_id.as_bytes()))
     }
+}
+
+impl TracerouteReply {
     pub fn rtt_ms(&self) -> f64 {
         (self.rtt as f64) / 10.0
     }

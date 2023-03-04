@@ -1,57 +1,70 @@
 use std::ops::Sub;
 
 use chrono::Duration;
-use warts::{Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
+use warts::{
+    Address,
+    Timeval,
+    TraceProbe,
+    TraceStopReason,
+    TraceType,
+    Traceroute as WartsTraceroute,
+};
 
-use crate::internal::TracerouteReply;
+use crate::internal::{Traceroute, TracerouteReply};
 
 /// Build a [Traceroute] from an array of [TracerouteReply].
 /// There must be at-least one reply, and all replies must have the same flow identifier.
-pub fn warts_trace_from_internal(replies: &[TracerouteReply]) -> Traceroute {
-    let ref_reply = &replies[0];
-    let mut t = Traceroute {
-        length: 0,
-        flags: Default::default(),
-        param_length: None,
-        list_id: Some(1),
-        cycle_id: Some(1), // TODO: Should we put specific values here?
-        src_addr_id: None,
-        dst_addr_id: None,
-        start_time: Some(Timeval::from(ref_reply.traceroute_start.naive_utc())),
-        stop_reason: Some(TraceStopReason::Completed),
-        stop_data: Some(0),
-        trace_flags: None,
-        attempts: None,
-        hop_limit: None,
-        trace_type: Some(TraceType::ICMPEchoParis),
-        probe_size: None,
-        src_port: Some(ref_reply.probe_src_port),
-        dst_port: Some(ref_reply.probe_dst_port),
-        first_ttl: None, // TODO
-        ip_tos: None,
-        timeout_sec: None,
-        allowed_loops: None,
-        hops_probed: None,
-        gap_limit: None,
-        gap_limit_action: None,
-        loop_action: None,
-        probes_sent: None,
-        interval_csec: None,
-        confidence_level: None,
-        src_addr: Some(Address::from(ref_reply.probe_src_addr)),
-        dst_addr: Some(Address::from(ref_reply.probe_dst_addr)),
-        user_id: None,
-        ip_offset: None,
-        router_addr: None,
-        hop_count: replies.len() as u16,
-        hops: replies
-            .iter()
-            .map(warts_trace_probe_from_internal)
-            .collect(),
-        eof: 0,
-    };
-    t.fixup();
-    t
+pub fn warts_trace_from_internal(traceroute: &Traceroute) -> Vec<WartsTraceroute> {
+    traceroute
+        .flows
+        .iter()
+        .map(|flow| {
+            let mut t = WartsTraceroute {
+                length: 0,
+                flags: Default::default(),
+                param_length: None,
+                list_id: Some(1),
+                cycle_id: Some(1), // TODO: Should we put specific values here?
+                src_addr_id: None,
+                dst_addr_id: None,
+                start_time: Some(Timeval::from(traceroute.start_time.naive_utc())),
+                stop_reason: Some(TraceStopReason::Completed),
+                stop_data: Some(0),
+                trace_flags: None,
+                attempts: None,
+                hop_limit: None,
+                trace_type: Some(TraceType::ICMPEchoParis),
+                probe_size: None,
+                src_port: Some(flow.probe_src_port),
+                dst_port: Some(flow.probe_dst_port),
+                first_ttl: None, // TODO
+                ip_tos: None,
+                timeout_sec: None,
+                allowed_loops: None,
+                hops_probed: None,
+                gap_limit: None,
+                gap_limit_action: None,
+                loop_action: None,
+                probes_sent: None,
+                interval_csec: None,
+                confidence_level: None,
+                src_addr: Some(Address::from(traceroute.probe_src_addr)),
+                dst_addr: Some(Address::from(traceroute.probe_dst_addr)),
+                user_id: None,
+                ip_offset: None,
+                router_addr: None,
+                hop_count: flow.replies.len() as u16,
+                hops: flow
+                    .replies
+                    .iter()
+                    .map(warts_trace_probe_from_internal)
+                    .collect(),
+                eof: 0,
+            };
+            t.fixup();
+            t
+        })
+        .collect()
 }
 
 fn warts_trace_probe_from_internal(reply: &TracerouteReply) -> TraceProbe {

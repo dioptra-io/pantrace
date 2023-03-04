@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::internal::TracerouteReply;
+use crate::internal::Traceroute;
 use crate::iris::IrisTraceroute;
 use crate::traits::TracerouteWriter;
 
@@ -15,13 +15,11 @@ impl<W: Write> IrisWriter<W> {
 }
 
 impl<W: Write> TracerouteWriter for IrisWriter<W> {
-    fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        if !replies.is_empty() {
-            let traceroute = IrisTraceroute::from_internal(replies);
-            let bytes = serde_json::to_vec(&traceroute)?;
-            self.output.write_all(&bytes)?;
-            self.output.write_all(b"\n")?;
-        }
+    fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
+        let traceroute = IrisTraceroute::from_internal(traceroute);
+        let bytes = serde_json::to_vec(&traceroute)?;
+        self.output.write_all(&bytes)?;
+        self.output.write_all(b"\n")?;
         Ok(())
     }
 }

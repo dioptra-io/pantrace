@@ -1,21 +1,29 @@
-use crate::internal::{MplsEntry, TracerouteReply};
-use crate::iris::{IrisMplsEntry, IrisReply, IrisTraceroute};
+use crate::internal::{MplsEntry, Traceroute, TracerouteReply};
+use crate::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
+
+// TODO: Update docstrings (TracerouteReply -> Traceroute).
+// TODO: Update Iris query for multiple flows.
 
 impl IrisTraceroute {
     /// Build an [IrisTraceroute] from an array of [TracerouteReply].
     /// There must be at-least one reply, and all replies must have the same flow identifier.
-    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
-        let ref_reply = &replies[0];
+    pub fn from_internal(traceroute: &Traceroute) -> Self {
         IrisTraceroute {
-            measurement_uuid: ref_reply.measurement_id.clone(),
-            agent_uuid: ref_reply.agent_id.clone(),
-            traceroute_start: ref_reply.traceroute_start,
-            probe_protocol: ref_reply.probe_protocol,
-            probe_src_addr: ref_reply.probe_src_addr,
-            probe_dst_addr: ref_reply.probe_dst_addr,
-            probe_src_port: ref_reply.probe_src_port,
-            probe_dst_port: ref_reply.probe_dst_port,
-            replies: replies.iter().map(IrisReply::from_internal).collect(),
+            measurement_uuid: traceroute.measurement_id.clone(),
+            agent_uuid: traceroute.agent_id.clone(),
+            traceroute_start: traceroute.start_time,
+            probe_protocol: traceroute.probe_protocol,
+            probe_src_addr: traceroute.probe_src_addr,
+            probe_dst_addr: traceroute.probe_dst_addr,
+            flows: traceroute
+                .flows
+                .iter()
+                .map(|flow| IrisFlow {
+                    probe_src_port: flow.probe_src_port,
+                    probe_dst_port: flow.probe_dst_port,
+                    replies: flow.replies.iter().map(IrisReply::from_internal).collect(),
+                })
+                .collect(),
         }
     }
 }

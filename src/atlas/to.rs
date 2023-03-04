@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv6Addr};
 
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{TimeZone, Utc};
 
 use crate::atlas::{
     AtlasIcmpExt,
@@ -10,71 +10,49 @@ use crate::atlas::{
     AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
 
 impl AtlasTraceroute {
-    pub fn to_internal(&self) -> Vec<TracerouteReply> {
-        self.result
-            .iter()
-            .flat_map(|result| {
-                result.to_internal(
-                    self.msm_id,
-                    self.prb_id,
-                    self.timestamp,
-                    &self.proto,
-                    self.from.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
-                    self.dst_addr.unwrap_or(IpAddr::V6(Ipv6Addr::UNSPECIFIED)),
-                    self.paris_id,
-                )
-            })
-            .collect()
+    pub fn to_internal(&self) -> Traceroute {
+        Traceroute {
+            measurement_id: self.msm_id.to_string(),
+            agent_id: self.prb_id.to_string(),
+            start_time: self.timestamp,
+            end_time: self.endtime,
+            probe_protocol: PROTOCOL_FROM_STRING[&self.proto],
+            // TODO: Simplify this by making src/dst optional in internal model.
+            probe_src_addr: ipv6_from_ip(
+                self.src_addr.unwrap_or(IpAddr::from(Ipv6Addr::UNSPECIFIED)),
+            ),
+            probe_dst_addr: ipv6_from_ip(
+                self.dst_addr.unwrap_or(IpAddr::from(Ipv6Addr::UNSPECIFIED)),
+            ),
+            flows: vec![TracerouteFlow {
+                probe_src_port: self.paris_id,
+                probe_dst_port: 0,
+                replies: self
+                    .result
+                    .iter()
+                    .flat_map(|result| result.to_internal())
+                    .collect(),
+            }],
+        }
     }
 }
 
 impl AtlasTracerouteHop {
-    pub fn to_internal(
-        &self,
-        msm_id: u64,
-        prb_id: u64,
-        timestamp: DateTime<Utc>,
-        proto: &str,
-        src_addr: IpAddr,
-        dst_addr: IpAddr,
-        paris_id: u16,
-    ) -> Vec<TracerouteReply> {
+    pub fn to_internal(&self) -> Vec<TracerouteReply> {
         self.result
             .iter()
-            .map(|result| {
-                result.to_internal(
-                    msm_id, prb_id, timestamp, proto, src_addr, dst_addr, paris_id, self.hop,
-                )
-            })
+            .map(|result| result.to_internal(self.hop))
             .collect()
     }
 }
 
 impl AtlasTracerouteReply {
-    pub fn to_internal(
-        &self,
-        msm_id: u64,
-        prb_id: u64,
-        timestamp: DateTime<Utc>,
-        proto: &str,
-        src_addr: IpAddr,
-        dst_addr: IpAddr,
-        paris_id: u16,
-        hop: u8,
-    ) -> TracerouteReply {
+    pub fn to_internal(&self, hop: u8) -> TracerouteReply {
         TracerouteReply {
-            measurement_id: msm_id.to_string(),
-            agent_id: prb_id.to_string(),
-            traceroute_start: timestamp,
-            probe_protocol: PROTOCOL_FROM_STRING[proto],
-            probe_src_addr: ipv6_from_ip(src_addr),
-            probe_dst_addr: ipv6_from_ip(dst_addr),
-            probe_src_port: paris_id,
-            probe_dst_port: 0,
             // Atlas does not store the capture timestamp.
             capture_timestamp: Utc.timestamp_opt(0, 0).unwrap(),
             probe_ttl: hop,
@@ -88,8 +66,8 @@ impl AtlasTracerouteReply {
                 .flat_map(|ext| ext.to_internal())
                 .collect(),
             reply_src_addr: self.from.map_or(Ipv6Addr::from(0), ipv6_from_ip),
-            reply_icmp_type: 0, // TODO
-            reply_icmp_code: 0, // TODO
+            reply_icmp_type: 0, // TODO: guess
+            reply_icmp_code: 0, // TODO: guess
             rtt: (self.rtt * 10.0) as u16,
         }
     }

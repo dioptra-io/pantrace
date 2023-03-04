@@ -4,7 +4,7 @@ use std::io::Write;
 use chrono::Utc;
 use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
 
-use crate::internal::TracerouteReply;
+use crate::internal::Traceroute;
 use crate::traits::TracerouteWriter;
 use crate::warts_trace::from::warts_trace_from_internal;
 
@@ -19,10 +19,12 @@ impl<W: Write> WartsTraceWriter<W> {
 }
 
 impl<W: Write> TracerouteWriter for WartsTraceWriter<W> {
-    fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        let traceroute = warts_trace_from_internal(replies);
-        let bytes = Object::Traceroute(traceroute).to_bytes()?;
-        self.output.write_all(&bytes)?;
+    fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
+        let traceroutes = warts_trace_from_internal(traceroute);
+        for traceroute in traceroutes {
+            let bytes = Object::Traceroute(traceroute).to_bytes()?;
+            self.output.write_all(&bytes)?;
+        }
         Ok(())
     }
 

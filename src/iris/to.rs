@@ -1,51 +1,39 @@
-use std::net::Ipv6Addr;
-
-use chrono::{DateTime, Utc};
-
-use crate::internal::{MplsEntry, TracerouteReply};
+use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::iris::{IrisMplsEntry, IrisReply, IrisTraceroute};
 
+// TODO: Impl To?
+
 impl IrisTraceroute {
-    pub fn to_internal(&self) -> Vec<TracerouteReply> {
-        self.replies
-            .iter()
-            .map(|reply| {
-                reply.to_internal(
-                    &self.measurement_uuid,
-                    &self.agent_uuid,
-                    self.traceroute_start,
-                    self.probe_protocol,
-                    self.probe_src_addr,
-                    self.probe_dst_addr,
-                    self.probe_src_port,
-                    self.probe_dst_port,
-                )
-            })
-            .collect()
+    pub fn to_internal(&self) -> Traceroute {
+        Traceroute {
+            measurement_id: self.measurement_uuid.to_string(),
+            agent_id: self.agent_uuid.to_string(),
+            start_time: self.traceroute_start,
+            end_time: Default::default(), // TODO
+            probe_protocol: self.probe_protocol,
+            probe_src_addr: self.probe_src_addr,
+            probe_dst_addr: self.probe_dst_addr,
+            // TODO: Use From/To to simplify this.
+            flows: self
+                .flows
+                .iter()
+                .map(|flow| TracerouteFlow {
+                    probe_src_port: flow.probe_src_port,
+                    probe_dst_port: flow.probe_dst_port,
+                    replies: flow
+                        .replies
+                        .iter()
+                        .map(|reply| reply.to_internal())
+                        .collect(),
+                })
+                .collect(),
+        }
     }
 }
 
 impl IrisReply {
-    pub fn to_internal(
-        &self,
-        measurement_uuid: &str,
-        agent_uuid: &str,
-        traceroute_start: DateTime<Utc>,
-        probe_protocol: u8,
-        probe_src_addr: Ipv6Addr,
-        probe_dst_addr: Ipv6Addr,
-        probe_src_port: u16,
-        probe_dst_port: u16,
-    ) -> TracerouteReply {
+    pub fn to_internal(&self) -> TracerouteReply {
         TracerouteReply {
-            measurement_id: measurement_uuid.to_owned(),
-            agent_id: agent_uuid.to_owned(),
-            traceroute_start,
-            probe_protocol,
-            probe_src_addr,
-            probe_dst_addr,
-            probe_src_port,
-            probe_dst_port,
             capture_timestamp: self.0,
             probe_ttl: self.1,
             quoted_ttl: self.2,

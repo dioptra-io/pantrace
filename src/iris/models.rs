@@ -11,6 +11,11 @@ pub struct IrisTraceroute {
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,
+    pub flows: Vec<IrisFlow>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IrisFlow {
     pub probe_src_port: u16,
     pub probe_dst_port: u16,
     pub replies: Vec<IrisReply>,

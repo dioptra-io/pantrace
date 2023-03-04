@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use crate::atlas::AtlasTraceroute;
-use crate::internal::TracerouteReply;
+use crate::internal::Traceroute;
 use crate::traits::TracerouteWriter;
 
 pub struct AtlasWriter<W: Write> {
@@ -15,9 +15,9 @@ impl<W: Write> AtlasWriter<W> {
 }
 
 impl<W: Write> TracerouteWriter for AtlasWriter<W> {
-    fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        if !replies.is_empty() {
-            let traceroute = AtlasTraceroute::from_internal(replies);
+    fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
+        let traceroutes = AtlasTraceroute::from_internal(traceroute);
+        for traceroute in traceroutes {
             let bytes = serde_json::to_vec(&traceroute)?;
             self.output.write_all(&bytes)?;
             self.output.write_all(b"\n")?;

@@ -2,50 +2,44 @@ use std::net::Ipv6Addr;
 use std::ops::Add;
 
 use chrono::{Duration, TimeZone, Utc};
-use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
+use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute as WartsTraceroute};
 
-use crate::internal::TracerouteReply;
+use crate::internal::{Traceroute, TracerouteFlow, TracerouteReply};
 
 /// Build an array of [TracerouteReply] from a [Traceroute].
 pub fn warts_trace_to_internal(
-    traceroute: &Traceroute,
+    traceroute: &WartsTraceroute,
     cycle_id: u32,
     monitor_name: &str,
-) -> Vec<TracerouteReply> {
-    traceroute
-        .hops
-        .iter()
-        .map(|tp| {
-            warts_trace_probe_to_internal(
-                tp,
-                cycle_id,
-                monitor_name,
-                traceroute.start_time.as_ref(),
-                traceroute.trace_type.as_ref(),
-                traceroute.src_addr,
-                traceroute.dst_addr,
-                traceroute.src_port,
-                traceroute.dst_port,
-            )
-        })
-        .collect()
+) -> Traceroute {
+    Traceroute {
+        measurement_id: cycle_id.to_string(),
+        agent_id: monitor_name.to_string(),
+        start_time: Default::default(), // TODO
+        // start_time: Utc
+        //     .timestamp_opt(traceroute.start_time.map_or(|t| t.seconds, 0) as i64, 0)
+        //     .unwrap(),
+        end_time: Default::default(), // TODO
+        probe_protocol: traceroute.trace_type.as_ref().map_or(0, protocol_number),
+        probe_src_addr: traceroute
+            .src_addr
+            .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_address),
+        probe_dst_addr: traceroute
+            .dst_addr
+            .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_address),
+        flows: vec![TracerouteFlow {
+            probe_src_port: traceroute.src_port.unwrap_or(0),
+            probe_dst_port: traceroute.dst_port.unwrap_or(0),
+            replies: traceroute
+                .hops
+                .iter()
+                .map(warts_trace_probe_to_internal)
+                .collect(),
+        }],
+    }
 }
 
-fn warts_trace_probe_to_internal(
-    tp: &TraceProbe,
-    cycle_id: u32,
-    monitor_name: &str,
-    trace_start: Option<&Timeval>,
-    trace_type: Option<&TraceType>,
-    src_addr: Option<Address>,
-    dst_addr: Option<Address>,
-    src_port: Option<u16>,
-    dst_port: Option<u16>,
-) -> TracerouteReply {
-    let traceroute_start = trace_start.unwrap_or(&Timeval {
-        seconds: 0,
-        microseconds: 0,
-    });
+fn warts_trace_probe_to_internal(tp: &TraceProbe) -> TracerouteReply {
     let tx = tp.tx.as_ref().unwrap_or(&Timeval {
         seconds: 0,
         microseconds: 0,
@@ -55,16 +49,6 @@ fn warts_trace_probe_to_internal(
         .unwrap()
         .add(Duration::microseconds(tp.rtt_usec.unwrap_or(0) as i64));
     TracerouteReply {
-        measurement_id: cycle_id.to_string(),
-        agent_id: monitor_name.into(),
-        traceroute_start: Utc
-            .timestamp_opt(traceroute_start.seconds as i64, 0)
-            .unwrap(),
-        probe_protocol: trace_type.map_or(0, protocol_number),
-        probe_src_addr: src_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
-        probe_dst_addr: dst_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
-        probe_src_port: src_port.unwrap_or(0),
-        probe_dst_port: dst_port.unwrap_or(0),
         capture_timestamp,
         probe_ttl: tp.probe_ttl.unwrap_or(0),
         quoted_ttl: tp.quoted_ttl.unwrap_or(0),
