@@ -1,8 +1,10 @@
-use crate::utils::{default_ipaddr, empty_string_as_none};
+use std::net::IpAddr;
+
 use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::net::IpAddr;
+
+use crate::utils::{default_ipaddr, empty_string_as_none};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AtlasTraceroute {

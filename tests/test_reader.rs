@@ -1,10 +1,11 @@
+use std::fs::File;
+use std::io::BufReader;
+
 use anyhow::Result;
 use pantrace::atlas::AtlasReader;
 use pantrace::internal::TracerouteReply;
 use pantrace::iris::IrisReader;
 use pantrace::warts_trace::WartsTraceReader;
-use std::fs::File;
-use std::io::BufReader;
 
 #[test]
 fn test_atlas() {

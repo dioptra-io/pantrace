@@ -1,6 +1,7 @@
+use std::net::Ipv6Addr;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::net::Ipv6Addr;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IrisTraceroute {

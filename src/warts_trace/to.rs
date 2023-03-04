@@ -1,9 +1,10 @@
-use crate::internal::TracerouteReply;
-use chrono::TimeZone;
-use chrono::{Duration, Utc};
 use std::net::Ipv6Addr;
 use std::ops::Add;
+
+use chrono::{Duration, TimeZone, Utc};
 use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
+
+use crate::internal::TracerouteReply;
 
 /// Build an array of [TracerouteReply] from a [Traceroute].
 pub fn warts_trace_to_internal(
@@ -50,12 +51,15 @@ fn warts_trace_probe_to_internal(
         microseconds: 0,
     });
     let capture_timestamp = Utc
-        .timestamp(tx.seconds as i64, tx.microseconds * 1000)
+        .timestamp_opt(tx.seconds as i64, tx.microseconds * 1000)
+        .unwrap()
         .add(Duration::microseconds(tp.rtt_usec.unwrap_or(0) as i64));
     TracerouteReply {
         measurement_id: cycle_id.to_string(),
         agent_id: monitor_name.into(),
-        traceroute_start: Utc.timestamp(traceroute_start.seconds as i64, 0),
+        traceroute_start: Utc
+            .timestamp_opt(traceroute_start.seconds as i64, 0)
+            .unwrap(),
         probe_protocol: trace_type.map_or(0, protocol_number),
         probe_src_addr: src_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
         probe_dst_addr: dst_addr.map_or(Ipv6Addr::from(0), ipv6_from_address),
@@ -78,7 +82,7 @@ fn ipv6_from_address(addr: Address) -> Ipv6Addr {
     match addr {
         Address::IPv4(_, x) => x.to_ipv6_mapped(),
         Address::IPv6(_, x) => x,
-        _ => panic!("Unsupported address type: {:?}", addr),
+        _ => panic!("Unsupported address type: {addr:?}"),
     }
 }
 

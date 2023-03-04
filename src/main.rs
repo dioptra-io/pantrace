@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::{stdin, stdout, BufRead, BufReader, Write};
+use std::process::exit;
+
 use anyhow::{Context, Result};
 use clap::{AppSettings, ArgEnum, Parser};
 use pantrace::atlas::{AtlasReader, AtlasWriter};
@@ -5,9 +9,6 @@ use pantrace::internal::{InternalReader, InternalWriter};
 use pantrace::iris::{IrisReader, IrisWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
 use pantrace::warts_trace::{WartsTraceReader, WartsTraceWriter};
-use std::fs::File;
-use std::io::{stdin, stdout, BufRead, BufReader, Write};
-use std::process::exit;
 
 #[derive(ArgEnum, Clone, Debug, PartialEq)]
 enum Format {
@@ -47,7 +48,7 @@ fn main() -> Result<()> {
     let input: Box<dyn BufRead> = match args.input {
         Some(input_file) => {
             let f = File::open(&input_file)
-                .with_context(|| format!("Failed to open input file {}", input_file))?;
+                .with_context(|| format!("Failed to open input file {input_file}"))?;
             Box::new(BufReader::new(f))
         }
         None => Box::new(stdin().lock()),
@@ -56,7 +57,7 @@ fn main() -> Result<()> {
     let output: Box<dyn Write> = match args.output {
         Some(output_file) => {
             let f = File::create(&output_file)
-                .with_context(|| format!("Failed to open output file {}", output_file))?;
+                .with_context(|| format!("Failed to open output file {output_file}"))?;
             Box::new(f)
         }
         None => Box::new(stdout().lock()),
@@ -82,7 +83,7 @@ fn main() -> Result<()> {
 
     for result in reader {
         if let Err(e) = result.map(|replies| writer.write_traceroute(&replies)) {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             if args.exit_on_error {
                 exit(1);
             }

@@ -1,7 +1,9 @@
+use std::net::Ipv6Addr;
+
+use chrono::{DateTime, Utc};
+
 use crate::internal::{MplsEntry, TracerouteReply};
 use crate::iris::{IrisMplsEntry, IrisReply, IrisTraceroute};
-use chrono::{DateTime, Utc};
-use std::net::Ipv6Addr;
 
 impl IrisTraceroute {
     pub fn to_internal(&self) -> Vec<TracerouteReply> {

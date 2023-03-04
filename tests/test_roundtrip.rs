@@ -1,24 +1,24 @@
+use std::net::Ipv6Addr;
+use std::str::FromStr;
+
 use chrono::{TimeZone, Utc};
 use pantrace::atlas::AtlasTraceroute;
 use pantrace::internal::TracerouteReply;
 use pantrace::iris::IrisTraceroute;
-use pantrace::warts_trace::warts_trace_from_internal;
-use pantrace::warts_trace::warts_trace_to_internal;
-use std::net::Ipv6Addr;
-use std::str::FromStr;
+use pantrace::warts_trace::{warts_trace_from_internal, warts_trace_to_internal};
 
 fn test_replies() -> Vec<TracerouteReply> {
     let mut replies = Vec::new();
     replies.push(TracerouteReply {
         measurement_id: "1234".to_string(),
         agent_id: "5678".to_string(),
-        traceroute_start: Utc.ymd(2022, 2, 1).and_hms(12, 23, 34),
+        traceroute_start: Utc.with_ymd_and_hms(2022, 2, 1, 12, 23, 34).unwrap(),
         probe_protocol: 1,
         probe_src_addr: Ipv6Addr::from_str("2001:db8::1").unwrap(),
         probe_dst_addr: Ipv6Addr::from_str("2001:db8::1").unwrap(),
         probe_src_port: 24000,
         probe_dst_port: 33434,
-        capture_timestamp: Utc.ymd(2022, 2, 1).and_hms(12, 23, 35),
+        capture_timestamp: Utc.with_ymd_and_hms(2022, 2, 1, 12, 23, 35).unwrap(),
         probe_ttl: 8,
         quoted_ttl: 1,
         reply_ttl: 32,

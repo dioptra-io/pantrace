@@ -1,11 +1,17 @@
+use std::net::{IpAddr, Ipv6Addr};
+
+use chrono::{DateTime, TimeZone, Utc};
+
 use crate::atlas::{
-    AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
+    AtlasIcmpExt,
+    AtlasIcmpExtMplsData,
+    AtlasIcmpExtObj,
+    AtlasTraceroute,
+    AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
 use crate::internal::{MplsEntry, TracerouteReply};
 use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
-use chrono::{DateTime, TimeZone, Utc};
-use std::net::{IpAddr, Ipv6Addr};
 
 impl AtlasTraceroute {
     pub fn to_internal(&self) -> Vec<TracerouteReply> {
@@ -70,7 +76,7 @@ impl AtlasTracerouteReply {
             probe_src_port: paris_id,
             probe_dst_port: 0,
             // Atlas does not store the capture timestamp.
-            capture_timestamp: Utc.timestamp(0, 0),
+            capture_timestamp: Utc.timestamp_opt(0, 0).unwrap(),
             probe_ttl: hop,
             // Atlas does not store the quoted TTL.
             quoted_ttl: 0,

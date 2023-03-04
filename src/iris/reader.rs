@@ -1,6 +1,7 @@
+use std::io::{BufRead, Lines};
+
 use crate::internal::TracerouteReply;
 use crate::iris::IrisTraceroute;
-use std::io::{BufRead, Lines};
 
 pub struct IrisReader<R: BufRead> {
     lines: Lines<R>,
