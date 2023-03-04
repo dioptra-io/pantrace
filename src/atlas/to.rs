@@ -76,7 +76,7 @@ impl AtlasTracerouteReply {
             probe_src_port: paris_id,
             probe_dst_port: 0,
             // Atlas does not store the capture timestamp.
-            capture_timestamp: Utc.timestamp(0, 0),
+            capture_timestamp: Utc.timestamp_opt(0, 0).unwrap(),
             probe_ttl: hop,
             // Atlas does not store the quoted TTL.
             quoted_ttl: 0,
