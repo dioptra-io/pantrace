@@ -23,6 +23,12 @@ cargo install pantrace
 docker run ghcr.io/dioptra-io/pantrace:main --help
 ```
 
+### Nix
+
+```bash
+nix run github:dioptra-io/pantrace -- --help
+```
+
 ## Usage
 
 ```bash
