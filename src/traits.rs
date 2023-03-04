@@ -1,5 +1,5 @@
 //! Traits that must be implemented by traceroute formats.
-use crate::internal::Traceroute;
+use crate::formats::internal::Traceroute;
 
 pub trait TracerouteReader = Iterator<Item = anyhow::Result<Traceroute>>;
 

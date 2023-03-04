@@ -1,7 +1,7 @@
 use std::io::Write;
 
-use crate::internal::Traceroute;
-use crate::iris::IrisTraceroute;
+use crate::formats::internal::Traceroute;
+use crate::formats::iris::IrisTraceroute;
 use crate::traits::TracerouteWriter;
 
 pub struct IrisWriter<W: Write> {

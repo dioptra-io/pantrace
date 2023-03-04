@@ -2,7 +2,7 @@ use std::net::Ipv6Addr;
 
 use chrono::{TimeZone, Utc};
 
-use crate::atlas::{
+use crate::formats::atlas::{
     AtlasIcmpExt,
     AtlasIcmpExtMplsData,
     AtlasIcmpExtObj,
@@ -10,7 +10,7 @@ use crate::atlas::{
     AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
 
 impl From<&AtlasTraceroute> for Traceroute {

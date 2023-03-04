@@ -2,8 +2,8 @@ use std::io::Read;
 
 use warts::{Address, Object};
 
-use crate::internal::Traceroute;
-use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::internal::Traceroute;
+use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
 
 pub struct ScamperTraceWartsReader {
     cycle_id: u32,

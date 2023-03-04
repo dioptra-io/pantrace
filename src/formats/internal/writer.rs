@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::internal::Traceroute;
+use crate::formats::internal::Traceroute;
 use crate::traits::TracerouteWriter;
 
 pub struct InternalWriter<W: Write> {

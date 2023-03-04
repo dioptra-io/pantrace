@@ -1,7 +1,7 @@
 use std::io::Write;
 
-use crate::atlas::AtlasTraceroute;
-use crate::internal::Traceroute;
+use crate::formats::atlas::AtlasTraceroute;
+use crate::formats::internal::Traceroute;
 use crate::traits::TracerouteWriter;
 
 pub struct AtlasWriter<W: Write> {

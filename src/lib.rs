@@ -5,9 +5,6 @@
 #![feature(slice_group_by)]
 #![feature(trait_alias)]
 
-pub mod atlas;
-pub mod internal;
-pub mod iris;
-pub mod scamper_trace_warts;
+pub mod formats;
 pub mod traits;
 pub mod utils;

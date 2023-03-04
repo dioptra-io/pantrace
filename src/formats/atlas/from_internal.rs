@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use crate::atlas::{
+use crate::formats::atlas::{
     AtlasIcmpExt,
     AtlasIcmpExtMplsData,
     AtlasIcmpExtObj,
@@ -8,7 +8,7 @@ use crate::atlas::{
     AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::internal::{MplsEntry, Traceroute, TracerouteReply};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
 use crate::utils::PROTOCOL_TO_STRING;
 
 impl From<&Traceroute> for Vec<AtlasTraceroute> {

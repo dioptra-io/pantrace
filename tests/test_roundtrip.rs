@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use pantrace::atlas::AtlasTraceroute;
-use pantrace::internal::Traceroute;
+use pantrace::formats::atlas::AtlasTraceroute;
+use pantrace::formats::internal::Traceroute;
 
 #[test]
 fn test_atlas() {

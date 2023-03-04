@@ -1,5 +1,5 @@
-use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
-use crate::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
+use crate::formats::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
 
 impl From<&IrisTraceroute> for Traceroute {
     fn from(traceroute: &IrisTraceroute) -> Traceroute {

@@ -4,8 +4,8 @@ use std::ops::Add;
 use chrono::{Duration, TimeZone, Utc};
 use warts::{Address, Timeval, TraceProbe, TraceType};
 
-use crate::internal::{Traceroute, TracerouteFlow, TracerouteReply};
-use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::internal::{Traceroute, TracerouteFlow, TracerouteReply};
+use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
 
 impl From<&WartsTracerouteWithMeta> for Traceroute {
     fn from(meta: &WartsTracerouteWithMeta) -> Self {

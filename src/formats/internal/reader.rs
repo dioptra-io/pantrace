@@ -1,6 +1,6 @@
 use std::io::{BufRead, Lines};
 
-use crate::internal::Traceroute;
+use crate::formats::internal::Traceroute;
 
 pub struct InternalReader<R: BufRead> {
     lines: Lines<R>,

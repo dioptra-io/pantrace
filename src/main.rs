@@ -4,10 +4,10 @@ use std::process::exit;
 
 use anyhow::{Context, Result};
 use clap::{AppSettings, ArgEnum, Parser};
-use pantrace::atlas::{AtlasReader, AtlasWriter};
-use pantrace::internal::{InternalReader, InternalWriter};
-use pantrace::iris::{IrisReader, IrisWriter};
-use pantrace::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
+use pantrace::formats::atlas::{AtlasReader, AtlasWriter};
+use pantrace::formats::internal::{InternalReader, InternalWriter};
+use pantrace::formats::iris::{IrisReader, IrisWriter};
+use pantrace::formats::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
 
 #[derive(ArgEnum, Clone, Debug, PartialEq)]

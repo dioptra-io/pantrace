@@ -1,5 +1,5 @@
-use crate::internal::{MplsEntry, Traceroute, TracerouteReply};
-use crate::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
+use crate::formats::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
 
 // TODO: Update docstrings (TracerouteReply -> Traceroute).
 // TODO: Update Iris query for multiple flows.

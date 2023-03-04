@@ -7,8 +7,8 @@ use warts::{
     Traceroute as WartsTraceroute,
 };
 
-use crate::internal::{Traceroute, TracerouteReply};
-use crate::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::internal::{Traceroute, TracerouteReply};
+use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
 
 impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
     fn from(traceroute: &Traceroute) -> Self {
