@@ -3,7 +3,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/dioptra-io/pantrace?logo=codecov&logoColor=white)](https://app.codecov.io/gh/dioptra-io/pantrace)
 [![crates.io](https://img.shields.io/crates/v/pantrace?logo=rust)](https://crates.io/crates/pantrace/)
 [![docs.rs](https://img.shields.io/docsrs/pantrace?logo=docs.rs)](https://docs.rs/pantrace/)
-[![Tests](https://img.shields.io/github/workflow/status/dioptra-io/pantrace/Tests?logo=github&label=tests)](https://github.com/dioptra-io/pantrace/actions/workflows/tests.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/dioptra-io/pantrace/tests.yml?logo=github&label=tests)](https://github.com/dioptra-io/pantrace/actions/workflows/tests.yml)
 
 Pantrace converts between traceroute formats, in the same way as [Pandoc](https://pandoc.org) converts between document formats.
 
