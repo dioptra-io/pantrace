@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/doublify/pre-commit-rust
-    rev: eeee35a
+    rev: v1.0
     hooks:
       - id: fmt
       - id: cargo-check
@@ -8,7 +8,7 @@ repos:
         args: [ "--", "-D", "warnings", "-A", "clippy::too-many-arguments", "-A", "clippy::derive-partial-eq-without-eq" ]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
         exclude: "README.md"
