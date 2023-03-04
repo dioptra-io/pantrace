@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::atlas::{
     AtlasIcmpExt,
     AtlasIcmpExtMplsData,
@@ -9,12 +11,10 @@ use crate::atlas::{
 use crate::internal::{MplsEntry, Traceroute, TracerouteReply};
 use crate::utils::PROTOCOL_TO_STRING;
 
-// TODO: Implement From<> trait instead of from_internal.
-
-impl AtlasTraceroute {
+impl From<&Traceroute> for Vec<AtlasTraceroute> {
     /// Build an AtlasTraceroute from an array of TracerouteReply.
     /// There must be at-least one reply, and all replies must have the same flow identifier.
-    pub fn from_internal(traceroute: &Traceroute) -> Vec<Self> {
+    fn from(traceroute: &Traceroute) -> Vec<AtlasTraceroute> {
         traceroute
             .flows
             .iter()
@@ -33,7 +33,7 @@ impl AtlasTraceroute {
                     result: flow
                         .replies
                         .group_by(|a, b| a.probe_ttl == b.probe_ttl)
-                        .map(AtlasTracerouteHop::from_internal)
+                        .map(|replies| replies.into())
                         .collect(),
                     size: 0, // TODO: size of the *probe*.
                     src_addr: Some(traceroute.probe_src_addr.to_canonical()),
@@ -45,59 +45,53 @@ impl AtlasTraceroute {
     }
 }
 
-impl AtlasTracerouteHop {
-    pub fn from_internal(replies: &[TracerouteReply]) -> Self {
+impl From<&[TracerouteReply]> for AtlasTracerouteHop {
+    fn from(replies: &[TracerouteReply]) -> Self {
         // TODO: assert that all replies are for the same hop?
         let ref_reply = &replies[0];
         AtlasTracerouteHop {
             hop: ref_reply.probe_ttl,
             error: None,
-            result: replies
-                .iter()
-                .map(AtlasTracerouteReply::from_internal)
-                .collect(),
+            result: replies.iter().map(|reply| reply.into()).collect(),
         }
     }
 }
 
-impl AtlasTracerouteReply {
-    pub fn from_internal(reply: &TracerouteReply) -> Self {
+impl From<&TracerouteReply> for AtlasTracerouteReply {
+    fn from(reply: &TracerouteReply) -> Self {
         AtlasTracerouteReply {
             from: Some(reply.reply_src_addr.to_canonical()),
             rtt: reply.rtt,
             size: reply.reply_size,
             ttl: reply.reply_ttl,
-            icmpext: vec![AtlasIcmpExt::from_internal(&reply.reply_mpls_labels)],
+            icmpext: vec![reply.reply_mpls_labels.deref().into()],
         }
     }
 }
 
-impl AtlasIcmpExt {
-    pub fn from_internal(entries: &[MplsEntry]) -> Self {
+impl From<&[MplsEntry]> for AtlasIcmpExt {
+    fn from(entries: &[MplsEntry]) -> Self {
         // TODO: Store RFC4844 information.
         AtlasIcmpExt {
             version: 1,
             rfc4884: 1,
-            obj: vec![AtlasIcmpExtObj::from_internal(entries)],
+            obj: vec![entries.into()],
         }
     }
 }
 
-impl AtlasIcmpExtObj {
-    pub fn from_internal(entries: &[MplsEntry]) -> Self {
+impl From<&[MplsEntry]> for AtlasIcmpExtObj {
+    fn from(entries: &[MplsEntry]) -> Self {
         AtlasIcmpExtObj {
             class: 1,
             kind: 1,
-            mpls: entries
-                .iter()
-                .map(AtlasIcmpExtMplsData::from_internal)
-                .collect(),
+            mpls: entries.iter().map(|entry| entry.into()).collect(),
         }
     }
 }
 
-impl AtlasIcmpExtMplsData {
-    pub fn from_internal(entry: &MplsEntry) -> Self {
+impl From<&MplsEntry> for AtlasIcmpExtMplsData {
+    fn from(entry: &MplsEntry) -> Self {
         AtlasIcmpExtMplsData {
             label: entry.label,
             exp: entry.exp,

@@ -16,7 +16,7 @@ impl<W: Write> AtlasWriter<W> {
 
 impl<W: Write> TracerouteWriter for AtlasWriter<W> {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
-        let traceroutes = AtlasTraceroute::from_internal(traceroute);
+        let traceroutes: Vec<AtlasTraceroute> = traceroute.into();
         for traceroute in traceroutes {
             let bytes = serde_json::to_vec(&traceroute)?;
             self.output.write_all(&bytes)?;
