@@ -76,6 +76,6 @@ impl Iterator for WartsTraceReader {
     fn next(&mut self) -> Option<Self::Item> {
         self.traceroutes
             .pop()
-            .map(|traceroute| Ok(traceroute.into()))
+            .map(|traceroute| Ok((&traceroute).into()))
     }
 }

@@ -7,8 +7,8 @@ use warts::{Address, Timeval, TraceProbe, TraceType};
 use crate::internal::{Traceroute, TracerouteFlow, TracerouteReply};
 use crate::warts_trace::models::WartsTracerouteWithMeta;
 
-impl From<WartsTracerouteWithMeta> for Traceroute {
-    fn from(meta: WartsTracerouteWithMeta) -> Self {
+impl From<&WartsTracerouteWithMeta> for Traceroute {
+    fn from(meta: &WartsTracerouteWithMeta) -> Self {
         Traceroute {
             measurement_id: meta.cycle_id.to_string(),
             agent_id: meta.monitor_name.to_string(),

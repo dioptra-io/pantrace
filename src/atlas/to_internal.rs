@@ -13,8 +13,8 @@ use crate::atlas::{
 use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
 
-impl From<AtlasTraceroute> for Traceroute {
-    fn from(traceroute: AtlasTraceroute) -> Traceroute {
+impl From<&AtlasTraceroute> for Traceroute {
+    fn from(traceroute: &AtlasTraceroute) -> Traceroute {
         Traceroute {
             measurement_id: traceroute.msm_id.to_string(),
             agent_id: traceroute.prb_id.to_string(),

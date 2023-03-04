@@ -1,8 +1,8 @@
 use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
 
-impl From<IrisTraceroute> for Traceroute {
-    fn from(traceroute: IrisTraceroute) -> Traceroute {
+impl From<&IrisTraceroute> for Traceroute {
+    fn from(traceroute: &IrisTraceroute) -> Traceroute {
         Traceroute {
             measurement_id: traceroute.measurement_uuid.to_string(),
             agent_id: traceroute.agent_uuid.to_string(),

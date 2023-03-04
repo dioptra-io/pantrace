@@ -12,7 +12,6 @@ mod writer;
 
 // TODO: Rename to scamper_trace_warts
 
-pub use from_internal::*;
+pub use models::*;
 pub use reader::*;
-pub use to_internal::*;
 pub use writer::*;
