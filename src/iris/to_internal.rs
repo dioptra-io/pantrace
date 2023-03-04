@@ -1,60 +1,55 @@
 use crate::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
-use crate::iris::{IrisMplsEntry, IrisReply, IrisTraceroute};
+use crate::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
 
-// TODO: Impl To?
-
-impl IrisTraceroute {
-    pub fn to_internal(&self) -> Traceroute {
+impl From<IrisTraceroute> for Traceroute {
+    fn from(traceroute: IrisTraceroute) -> Traceroute {
         Traceroute {
-            measurement_id: self.measurement_uuid.to_string(),
-            agent_id: self.agent_uuid.to_string(),
-            start_time: self.traceroute_start,
-            end_time: Default::default(), // TODO
-            probe_protocol: self.probe_protocol,
-            probe_src_addr: self.probe_src_addr,
-            probe_dst_addr: self.probe_dst_addr,
-            // TODO: Use From/To to simplify this.
-            flows: self
-                .flows
-                .iter()
-                .map(|flow| TracerouteFlow {
-                    probe_src_port: flow.probe_src_port,
-                    probe_dst_port: flow.probe_dst_port,
-                    replies: flow
-                        .replies
-                        .iter()
-                        .map(|reply| reply.to_internal())
-                        .collect(),
-                })
-                .collect(),
+            measurement_id: traceroute.measurement_uuid.to_string(),
+            agent_id: traceroute.agent_uuid.to_string(),
+            start_time: traceroute.traceroute_start,
+            end_time: traceroute.traceroute_end,
+            probe_protocol: traceroute.probe_protocol,
+            probe_src_addr: traceroute.probe_src_addr,
+            probe_dst_addr: traceroute.probe_dst_addr,
+            flows: traceroute.flows.iter().map(|flow| flow.into()).collect(),
         }
     }
 }
 
-impl IrisReply {
-    pub fn to_internal(&self) -> TracerouteReply {
+impl From<&IrisFlow> for TracerouteFlow {
+    fn from(flow: &IrisFlow) -> Self {
+        TracerouteFlow {
+            probe_src_port: flow.probe_src_port,
+            probe_dst_port: flow.probe_dst_port,
+            replies: flow.replies.iter().map(|reply| reply.into()).collect(),
+        }
+    }
+}
+
+impl From<&IrisReply> for TracerouteReply {
+    fn from(reply: &IrisReply) -> TracerouteReply {
         TracerouteReply {
-            capture_timestamp: self.0,
-            probe_ttl: self.1,
-            quoted_ttl: self.2,
-            reply_icmp_type: self.3,
-            reply_icmp_code: self.4,
-            reply_ttl: self.5,
-            reply_size: self.6,
-            reply_mpls_labels: self.7.iter().map(IrisMplsEntry::to_internal).collect(),
-            reply_src_addr: self.8,
-            rtt: self.9 as f64 / 10.0,
+            capture_timestamp: reply.0,
+            probe_ttl: reply.1,
+            quoted_ttl: reply.2,
+            reply_icmp_type: reply.3,
+            reply_icmp_code: reply.4,
+            reply_ttl: reply.5,
+            reply_size: reply.6,
+            reply_mpls_labels: reply.7.iter().map(|entry| entry.into()).collect(),
+            reply_src_addr: reply.8,
+            rtt: reply.9 as f64 / 10.0,
         }
     }
 }
 
-impl IrisMplsEntry {
-    pub fn to_internal(&self) -> MplsEntry {
+impl From<&IrisMplsEntry> for MplsEntry {
+    fn from(entry: &IrisMplsEntry) -> MplsEntry {
         MplsEntry {
-            label: self.0,
-            exp: self.1,
-            bottom_of_stack: self.2,
-            ttl: self.3,
+            label: entry.0,
+            exp: entry.1,
+            bottom_of_stack: entry.2,
+            ttl: entry.3,
         }
     }
 }

@@ -16,7 +16,7 @@ impl<W: Write> IrisWriter<W> {
 
 impl<W: Write> TracerouteWriter for IrisWriter<W> {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
-        let traceroute = IrisTraceroute::from_internal(traceroute);
+        let traceroute: IrisTraceroute = traceroute.into();
         let bytes = serde_json::to_vec(&traceroute)?;
         self.output.write_all(&bytes)?;
         self.output.write_all(b"\n")?;

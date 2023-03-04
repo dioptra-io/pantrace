@@ -10,6 +10,8 @@ mod reader;
 mod to_internal;
 mod writer;
 
+// TODO: Rename to scamper_trace_warts
+
 pub use from_internal::*;
 pub use reader::*;
 pub use to_internal::*;

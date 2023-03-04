@@ -21,7 +21,7 @@ impl<R: BufRead> Iterator for AtlasReader<R> {
         self.lines.next().map(|result| {
             let line = result?;
             let traceroute = serde_json::from_str::<AtlasTraceroute>(&line)?;
-            Ok(traceroute.to_internal())
+            Ok(traceroute.into())
         })
     }
 }

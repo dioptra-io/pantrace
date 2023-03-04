@@ -21,7 +21,7 @@ impl<R: BufRead> Iterator for IrisReader<R> {
         self.lines.next().map(|result| {
             let line = result?;
             let traceroute = serde_json::from_str::<IrisTraceroute>(&line)?;
-            Ok(traceroute.to_internal())
+            Ok(traceroute.into())
         })
     }
 }

@@ -8,6 +8,7 @@ pub struct IrisTraceroute {
     pub measurement_uuid: String,
     pub agent_uuid: String,
     pub traceroute_start: DateTime<Utc>,
+    pub traceroute_end: DateTime<Utc>,
     pub probe_protocol: u8,
     pub probe_src_addr: Ipv6Addr,
     pub probe_dst_addr: Ipv6Addr,
