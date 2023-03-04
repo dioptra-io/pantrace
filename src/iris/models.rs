@@ -17,14 +17,6 @@ pub struct IrisTraceroute {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct IrisMultipathTraceroute {
-    pub probe_protocol: u8,
-    pub probe_src_addr: Ipv6Addr,
-    pub probe_dst_prefix: Ipv6Addr,
-    pub replies: Vec<IrisReply>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct IrisReply(
     /// `capture_timestamp`
     pub DateTime<Utc>,
