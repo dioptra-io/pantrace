@@ -1,5 +1,6 @@
-use crate::internal::TracerouteReply;
 use std::io::{BufRead, Lines};
+
+use crate::internal::TracerouteReply;
 
 pub struct InternalReader<R: BufRead> {
     _lines: Lines<R>,

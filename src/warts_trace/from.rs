@@ -1,7 +1,9 @@
-use crate::internal::TracerouteReply;
-use chrono::Duration;
 use std::ops::Sub;
+
+use chrono::Duration;
 use warts::{Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute};
+
+use crate::internal::TracerouteReply;
 
 /// Build a [Traceroute] from an array of [TracerouteReply].
 /// There must be at-least one reply, and all replies must have the same flow identifier.

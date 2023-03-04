@@ -1,8 +1,9 @@
 //! Functions common to the various traceroute formats.
+use std::net::{IpAddr, Ipv6Addr};
+
 use phf::phf_map;
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
-use std::net::{IpAddr, Ipv6Addr};
 
 pub static PROTOCOL_TO_STRING: phf::Map<u8, &'static str> = phf_map! {
     1u8 => "ICMP",

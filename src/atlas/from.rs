@@ -1,10 +1,15 @@
+use std::net::IpAddr;
+
 use crate::atlas::{
-    AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
+    AtlasIcmpExt,
+    AtlasIcmpExtMplsData,
+    AtlasIcmpExtObj,
+    AtlasTraceroute,
+    AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
 use crate::internal::{MplsEntry, TracerouteReply};
 use crate::utils::PROTOCOL_TO_STRING;
-use std::net::IpAddr;
 
 impl AtlasTraceroute {
     /// Build an AtlasTraceroute from an array of TracerouteReply.

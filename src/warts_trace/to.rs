@@ -1,9 +1,10 @@
-use crate::internal::TracerouteReply;
-use chrono::TimeZone;
-use chrono::{Duration, Utc};
 use std::net::Ipv6Addr;
 use std::ops::Add;
+
+use chrono::{Duration, TimeZone, Utc};
 use warts::{Address, Timeval, TraceProbe, TraceType, Traceroute};
+
+use crate::internal::TracerouteReply;
 
 /// Build an array of [TracerouteReply] from a [Traceroute].
 pub fn warts_trace_to_internal(

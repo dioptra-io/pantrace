@@ -1,11 +1,11 @@
+use std::net::Ipv6Addr;
+use std::str::FromStr;
+
 use chrono::{TimeZone, Utc};
 use pantrace::atlas::AtlasTraceroute;
 use pantrace::internal::TracerouteReply;
 use pantrace::iris::IrisTraceroute;
-use pantrace::warts_trace::warts_trace_from_internal;
-use pantrace::warts_trace::warts_trace_to_internal;
-use std::net::Ipv6Addr;
-use std::str::FromStr;
+use pantrace::warts_trace::{warts_trace_from_internal, warts_trace_to_internal};
 
 fn test_replies() -> Vec<TracerouteReply> {
     let mut replies = Vec::new();

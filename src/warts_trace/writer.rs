@@ -1,10 +1,12 @@
+use std::ffi::CString;
+use std::io::Write;
+
+use chrono::Utc;
+use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
+
 use crate::internal::TracerouteReply;
 use crate::traits::TracerouteWriter;
 use crate::warts_trace::from::warts_trace_from_internal;
-use chrono::Utc;
-use std::ffi::CString;
-use std::io::Write;
-use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
 
 pub struct WartsTraceWriter<W: Write> {
     output: W,
