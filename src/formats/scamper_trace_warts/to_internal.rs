@@ -23,10 +23,16 @@ impl From<&ScamperTraceWarts> for Traceroute {
             measurement_name: "".to_string(),
             measurement_id: trace.cycle_id.to_string(),
             agent_id: trace.monitor_name.to_string(),
-            start_time: Default::default(), // TODO
-            // start_time: Utc
-            //     .timestamp_opt(traceroute.start_time.map_or(|t| t.seconds, 0) as i64, 0)
-            //     .unwrap(),
+            start_time: Utc
+                .timestamp_opt(
+                    trace
+                        .traceroute
+                        .start_time
+                        .as_ref()
+                        .map_or(0, |t| t.seconds) as i64,
+                    0,
+                )
+                .unwrap(),
             end_time: Default::default(), // TODO
             protocol: trace.traceroute.trace_type.as_ref().unwrap().into(),
             src_addr: trace
@@ -66,7 +72,9 @@ impl From<&TraceProbe> for TracerouteProbe {
             .unwrap()
             .add(Duration::microseconds(tp.rtt_usec.unwrap_or(0) as i64));
         TracerouteProbe {
-            timestamp: Default::default(),
+            timestamp: Utc
+                .timestamp_opt(tx.seconds as i64, tx.microseconds * 1000)
+                .unwrap(),
             size: 0,
             reply: Some(TracerouteReply {
                 timestamp: capture_timestamp,

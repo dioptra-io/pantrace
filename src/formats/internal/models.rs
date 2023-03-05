@@ -125,8 +125,8 @@ impl FromStr for Protocol {
         match s {
             "ICMP" => Ok(Protocol::ICMP),
             "ICMP6" => Ok(Protocol::ICMP),
-            "TCP" => Ok(Protocol::ICMP),
-            "UDP" => Ok(Protocol::ICMP),
+            "TCP" => Ok(Protocol::TCP),
+            "UDP" => Ok(Protocol::UDP),
             _ => Err(format!("Unsupported protocol: {s}")),
         }
     }

@@ -2,7 +2,9 @@ use crate::formats::internal::{
     MplsEntry, Traceroute, TracerouteFlow, TracerouteHop, TracerouteProbe, TracerouteReply,
 };
 use crate::formats::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
+use chrono::Duration;
 use std::collections::HashMap;
+use std::ops::Sub;
 
 impl From<&IrisTraceroute> for Traceroute {
     fn from(traceroute: &IrisTraceroute) -> Traceroute {
@@ -47,7 +49,7 @@ impl From<&IrisFlow> for TracerouteFlow {
 impl From<&IrisReply> for TracerouteProbe {
     fn from(reply: &IrisReply) -> TracerouteProbe {
         TracerouteProbe {
-            timestamp: Default::default(), // TODO
+            timestamp: reply.0.sub(Duration::microseconds(reply.9 as i64 * 100)),
             size: 0,
             reply: Some(TracerouteReply {
                 timestamp: reply.0,
