@@ -3,24 +3,25 @@ use std::io::{stdin, stdout, BufRead, BufReader, Write};
 use std::process::exit;
 
 use anyhow::{Context, Result};
-use clap::{AppSettings, ArgEnum, Parser};
-use pantrace::atlas::{AtlasReader, AtlasWriter};
-use pantrace::internal::{InternalReader, InternalWriter};
-use pantrace::iris::{IrisReader, IrisWriter};
-use pantrace::traits::{TracerouteReader, TracerouteWriter};
-use pantrace::warts_trace::{WartsTraceReader, WartsTraceWriter};
+use clap::Parser;
+use pantrace::formats::atlas::{AtlasReader, AtlasWriter};
+use pantrace::formats::flat::FlatWriter;
+use pantrace::formats::internal::{InternalReader, InternalWriter, Traceroute};
+use pantrace::formats::iris::{IrisReader, IrisWriter};
+use pantrace::formats::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
+use pantrace::traits::TracerouteWriter;
 
-#[derive(ArgEnum, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, clap::ValueEnum)]
 enum Format {
     Atlas,
+    Flat,
     Internal,
     Iris,
-    WartsTrace,
+    ScamperTraceWarts,
 }
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 struct Args {
     /// Input file (stdin if not specified).
     #[clap(short, long)]
@@ -29,10 +30,10 @@ struct Args {
     #[clap(short, long)]
     output: Option<String>,
     /// Input format.
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long)]
     from: Format,
     /// Output format.
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long)]
     to: Format,
     /// Output start/end markers (e.g. Warts CycleStart/CycleStop).
     #[clap(short, long)]
@@ -63,18 +64,20 @@ fn main() -> Result<()> {
         None => Box::new(stdout().lock()),
     };
 
-    let reader: Box<dyn TracerouteReader> = match args.from {
+    let reader: Box<dyn Iterator<Item = Result<Traceroute>>> = match args.from {
         Format::Atlas => Box::new(AtlasReader::new(input)),
+        Format::Flat => todo!("reading flat format is not supported"),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
-        Format::WartsTrace => Box::new(WartsTraceReader::new(input)),
+        Format::ScamperTraceWarts => Box::new(ScamperTraceWartsReader::new(input)),
     };
 
     let mut writer: Box<dyn TracerouteWriter> = match args.to {
         Format::Atlas => Box::new(AtlasWriter::new(output)),
+        Format::Flat => Box::new(FlatWriter::new(output)),
         Format::Internal => Box::new(InternalWriter::new(output)),
         Format::Iris => Box::new(IrisWriter::new(output)),
-        Format::WartsTrace => Box::new(WartsTraceWriter::new(output)),
+        Format::ScamperTraceWarts => Box::new(ScamperTraceWartsWriter::new(output)),
     };
 
     if args.standalone {

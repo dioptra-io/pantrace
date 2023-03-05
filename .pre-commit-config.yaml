@@ -5,13 +5,13 @@ repos:
       - id: fmt
       - id: cargo-check
       - id: clippy
-        args: [ "--", "-D", "warnings", "-A", "clippy::too-many-arguments", "-A", "clippy::derive-partial-eq-without-eq" ]
+        args: [ "--", "-D", "warnings"  ]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
       - id: trailing-whitespace
-        exclude: "README.md"
+        exclude_types: [ markdown ]
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files

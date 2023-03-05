@@ -1,19 +1,19 @@
 use std::io::Read;
 
-use warts::{Address, Object, Traceroute};
+use warts::{Address, Object};
 
-use crate::internal::TracerouteReply;
-use crate::warts_trace::to::warts_trace_to_internal;
+use crate::formats::internal::Traceroute;
+use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 
-pub struct WartsTraceReader {
+pub struct ScamperTraceWartsReader {
     cycle_id: u32,
     monitor_name: String,
-    traceroutes: Vec<Traceroute>,
+    traceroutes: Vec<ScamperTraceWarts>,
 }
 
-impl WartsTraceReader {
-    pub fn new<R: Read>(mut input: R) -> WartsTraceReader {
-        let mut reader = WartsTraceReader {
+impl ScamperTraceWartsReader {
+    pub fn new<R: Read>(mut input: R) -> ScamperTraceWartsReader {
+        let mut reader = ScamperTraceWartsReader {
             cycle_id: 0,
             monitor_name: "unknown".to_string(),
             traceroutes: Vec::new(),
@@ -60,23 +60,22 @@ impl WartsTraceReader {
                 object.dereference_with_table(&table);
             }
             if let Object::Traceroute(traceroute) = object {
-                reader.traceroutes.push(traceroute);
+                reader.traceroutes.push(ScamperTraceWarts {
+                    cycle_id: reader.cycle_id,
+                    monitor_name: reader.monitor_name.to_string(),
+                    traceroute,
+                });
             }
         }
         reader
     }
 }
 
-impl Iterator for WartsTraceReader {
-    type Item = anyhow::Result<Vec<TracerouteReply>>;
+impl Iterator for ScamperTraceWartsReader {
+    type Item = anyhow::Result<Traceroute>;
     fn next(&mut self) -> Option<Self::Item> {
-        match self.traceroutes.pop() {
-            Some(traceroute) => {
-                let internal =
-                    warts_trace_to_internal(&traceroute, self.cycle_id, &self.monitor_name);
-                Some(Ok(internal))
-            }
-            _ => None,
-        }
+        self.traceroutes
+            .pop()
+            .map(|traceroute| Ok((&traceroute).into()))
     }
 }

@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly as builder
+FROM rust:latest as builder
 WORKDIR /usr/src/pantrace
 COPY . .
 # https://github.com/rust-lang/cargo/issues/10781

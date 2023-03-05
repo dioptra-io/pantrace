@@ -1,4 +1,4 @@
-use std::net::Ipv6Addr;
+use std::net::IpAddr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -8,9 +8,15 @@ pub struct IrisTraceroute {
     pub measurement_uuid: String,
     pub agent_uuid: String,
     pub traceroute_start: DateTime<Utc>,
+    pub traceroute_end: DateTime<Utc>,
     pub probe_protocol: u8,
-    pub probe_src_addr: Ipv6Addr,
-    pub probe_dst_addr: Ipv6Addr,
+    pub probe_src_addr: IpAddr,
+    pub probe_dst_addr: IpAddr,
+    pub flows: Vec<IrisFlow>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IrisFlow {
     pub probe_src_port: u16,
     pub probe_dst_port: u16,
     pub replies: Vec<IrisReply>,
@@ -35,7 +41,7 @@ pub struct IrisReply(
     /// `mpls_labels`
     pub Vec<IrisMplsEntry>,
     /// `reply_src_addr`
-    pub Ipv6Addr,
+    pub IpAddr,
     /// `rtt`
     pub u16,
 );

@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::internal::TracerouteReply;
+use crate::formats::internal::Traceroute;
 use crate::traits::TracerouteWriter;
 
 pub struct InternalWriter<W: Write> {
@@ -14,12 +14,10 @@ impl<W: Write> InternalWriter<W> {
 }
 
 impl<W: Write> TracerouteWriter for InternalWriter<W> {
-    fn write_traceroute(&mut self, replies: &[TracerouteReply]) -> anyhow::Result<()> {
-        for reply in replies {
-            let bytes = serde_json::to_vec(&reply)?;
-            self.output.write_all(&bytes)?;
-            self.output.write_all(b"\n")?;
-        }
+    fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
+        let bytes = serde_json::to_vec(traceroute)?;
+        self.output.write_all(&bytes)?;
+        self.output.write_all(b"\n")?;
         Ok(())
     }
 }

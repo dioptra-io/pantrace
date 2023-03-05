@@ -1,7 +1,7 @@
 use std::io::{BufRead, Lines};
 
-use crate::internal::TracerouteReply;
-use crate::iris::IrisTraceroute;
+use crate::formats::internal::Traceroute;
+use crate::formats::iris::IrisTraceroute;
 
 pub struct IrisReader<R: BufRead> {
     lines: Lines<R>,
@@ -16,12 +16,12 @@ impl<R: BufRead> IrisReader<R> {
 }
 
 impl<R: BufRead> Iterator for IrisReader<R> {
-    type Item = anyhow::Result<Vec<TracerouteReply>>;
+    type Item = anyhow::Result<Traceroute>;
     fn next(&mut self) -> Option<Self::Item> {
         self.lines.next().map(|result| {
             let line = result?;
-            let replies = serde_json::from_str::<IrisTraceroute>(&line)?;
-            Ok(replies.to_internal())
+            let traceroute = serde_json::from_str::<IrisTraceroute>(&line)?;
+            Ok((&traceroute).into())
         })
     }
 }
