@@ -2,10 +2,10 @@ use std::fs::File;
 use std::io::BufReader;
 
 use anyhow::Result;
-use pantrace::atlas::AtlasReader;
-use pantrace::internal::Traceroute;
-use pantrace::iris::IrisReader;
-use pantrace::scamper_trace_warts::ScamperTraceWartsReader;
+use pantrace::formats::atlas::AtlasReader;
+use pantrace::formats::internal::Traceroute;
+use pantrace::formats::iris::IrisReader;
+use pantrace::formats::scamper_trace_warts::ScamperTraceWartsReader;
 
 #[test]
 fn test_atlas() {

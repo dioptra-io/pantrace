@@ -4,23 +4,13 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
-    rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
-  outputs = { self, flake-utils, nixpkgs, rust-overlay }:
+  outputs = { self, flake-utils, nixpkgs }:
     flake-utils.lib.eachDefaultSystem (system:
-      let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
-        rustVersion = pkgs.rust-bin.nightly."2022-12-16".default;
-        rustPlatform = pkgs.makeRustPlatform {
-          cargo = rustVersion;
-          rustc = rustVersion;
-        };
-      in
       {
         packages = {
-          pantrace = rustPlatform.buildRustPackage {
+          pantrace = pkgs.rustPlatform.buildRustPackage {
             pname = "pantrace";
             version = "0.5.1";
             src = self;

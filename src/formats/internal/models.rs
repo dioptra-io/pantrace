@@ -1,11 +1,12 @@
-use std::net::Ipv6Addr;
+use std::collections::HashMap;
+use std::net::IpAddr;
 use std::ops::Sub;
 
 use chrono::{DateTime, Duration, Utc};
 use seahash::hash;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Traceroute {
     /// Platform-specific measurement identifier:
     /// `msm_id` on Atlas, `cycle_id` on Scamper / Ark, `measurement_uuid` on Iris...
@@ -19,12 +20,12 @@ pub struct Traceroute {
     pub end_time: DateTime<Utc>,
     // TODO: Enum for protocol and replace phf_map?
     pub protocol: u8,
-    pub src_addr: Ipv6Addr,
-    pub dst_addr: Ipv6Addr,
+    pub src_addr: IpAddr,
+    pub dst_addr: IpAddr,
     pub flows: Vec<TracerouteFlow>,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteFlow {
     // TODO: Store information about the method used to vary the flow ID (src-port, dst-port, ...)
     // TODO: Use enum/variant here to store other fields than src/dst ports?
@@ -34,7 +35,7 @@ pub struct TracerouteFlow {
 }
 
 // TODO: Store platform-specific metadata in a hashmap, to allow for proper round-tripping.
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TracerouteReply {
     pub timestamp: DateTime<Utc>,
     pub probe_ttl: u8,
@@ -42,13 +43,13 @@ pub struct TracerouteReply {
     pub ttl: u8,
     pub size: u16,
     pub mpls_labels: Vec<MplsEntry>,
-    pub addr: Ipv6Addr,
+    pub addr: IpAddr,
     pub icmp_type: u8,
     pub icmp_code: u8,
     pub rtt: f64,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MplsEntry {
     pub label: u32,
     pub exp: u8,
@@ -58,7 +59,7 @@ pub struct MplsEntry {
 
 impl Traceroute {
     pub fn af(&self) -> u8 {
-        if self.dst_addr.to_ipv4_mapped().is_some() {
+        if self.dst_addr.is_ipv4() {
             4
         } else {
             6
@@ -76,6 +77,18 @@ impl Traceroute {
         self.measurement_id
             .parse()
             .unwrap_or_else(|_| hash(self.measurement_id.as_bytes()))
+    }
+}
+
+impl TracerouteFlow {
+    pub fn replies_by_ttl(&self) -> HashMap<u8, Vec<TracerouteReply>> {
+        let mut map = HashMap::new();
+        for reply in &self.replies {
+            map.entry(reply.probe_ttl)
+                .or_insert_with(Vec::new)
+                .push(reply.clone());
+        }
+        map
     }
 }
 

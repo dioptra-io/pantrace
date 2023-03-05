@@ -1,11 +1,7 @@
 use std::ops::Deref;
 
 use crate::formats::atlas::{
-    AtlasIcmpExt,
-    AtlasIcmpExtMplsData,
-    AtlasIcmpExtObj,
-    AtlasTraceroute,
-    AtlasTracerouteHop,
+    AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
 use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
@@ -21,22 +17,22 @@ impl From<&Traceroute> for Vec<AtlasTraceroute> {
             .map(|flow| {
                 AtlasTraceroute {
                     af: traceroute.af(),
-                    dst_addr: Some(traceroute.dst_addr.to_canonical()),
+                    dst_addr: Some(traceroute.dst_addr),
                     dst_name: traceroute.dst_addr.to_string(),
                     endtime: traceroute.end_time,
-                    from: Some(traceroute.src_addr.to_canonical()),
+                    from: Some(traceroute.src_addr),
                     msm_id: traceroute.measurement_id_int(),
                     msm_name: traceroute.measurement_id.clone(),
                     paris_id: flow.src_port,
                     prb_id: traceroute.agent_id_int(),
                     proto: PROTOCOL_TO_STRING[&traceroute.protocol].to_string(),
                     result: flow
-                        .replies
-                        .group_by(|a, b| a.probe_ttl == b.probe_ttl)
-                        .map(|replies| replies.into())
+                        .replies_by_ttl()
+                        .values()
+                        .map(|replies| replies.deref().into())
                         .collect(),
                     size: 0, // TODO: size of the *probe*.
-                    src_addr: Some(traceroute.src_addr.to_canonical()),
+                    src_addr: Some(traceroute.src_addr),
                     timestamp: traceroute.start_time,
                     kind: "traceroute".to_string(),
                 }
@@ -60,7 +56,7 @@ impl From<&[TracerouteReply]> for AtlasTracerouteHop {
 impl From<&TracerouteReply> for AtlasTracerouteReply {
     fn from(reply: &TracerouteReply) -> Self {
         AtlasTracerouteReply {
-            from: Some(reply.addr.to_canonical()),
+            from: Some(reply.addr),
             rtt: reply.rtt,
             size: reply.size,
             ttl: reply.ttl,

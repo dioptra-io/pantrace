@@ -1,7 +1,8 @@
 //! Traits that must be implemented by traceroute formats.
 use crate::formats::internal::Traceroute;
 
-pub trait TracerouteReader = Iterator<Item = anyhow::Result<Traceroute>>;
+// Trait aliases are not yet available in Rust stable.
+// pub trait TracerouteReader = Iterator<Item = anyhow::Result<Traceroute>>;
 
 pub trait TracerouteWriter {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()>;

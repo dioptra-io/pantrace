@@ -1,11 +1,11 @@
-use std::net::Ipv6Addr;
 use std::ops::Add;
 
 use chrono::{Duration, TimeZone, Utc};
-use warts::{Address, Timeval, TraceProbe, TraceType};
+use warts::{Timeval, TraceProbe, TraceType};
 
 use crate::formats::internal::{Traceroute, TracerouteFlow, TracerouteReply};
 use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
+use crate::utils::UNSPECIFIED;
 
 impl From<&ScamperTraceWarts> for Traceroute {
     fn from(meta: &ScamperTraceWarts) -> Self {
@@ -25,11 +25,13 @@ impl From<&ScamperTraceWarts> for Traceroute {
             src_addr: meta
                 .traceroute
                 .src_addr
-                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_address),
+                .map(|x| x.into())
+                .unwrap_or(UNSPECIFIED),
             dst_addr: meta
                 .traceroute
                 .dst_addr
-                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_address),
+                .map(|x| x.into())
+                .unwrap_or(UNSPECIFIED),
             flows: vec![TracerouteFlow {
                 src_port: meta.traceroute.src_port.unwrap_or(0),
                 dst_port: meta.traceroute.dst_port.unwrap_or(0),
@@ -56,19 +58,11 @@ impl From<&TraceProbe> for TracerouteReply {
             ttl: tp.reply_ttl.unwrap_or(0),
             size: tp.reply_size.unwrap_or(0),
             mpls_labels: vec![], // TODO
-            addr: tp.addr.map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_address),
+            addr: tp.addr.map(|x| x.into()).unwrap_or(UNSPECIFIED),
             icmp_type: tp.icmp_type.unwrap_or(0),
             icmp_code: tp.icmp_code.unwrap_or(0),
             rtt: tp.rtt_usec.unwrap_or(0) as f64 / 1000.0,
         }
-    }
-}
-
-fn ipv6_from_address(addr: Address) -> Ipv6Addr {
-    match addr {
-        Address::IPv4(_, x) => x.to_ipv6_mapped(),
-        Address::IPv6(_, x) => x,
-        _ => panic!("Unsupported address type: {addr:?}"),
     }
 }
 

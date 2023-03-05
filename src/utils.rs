@@ -5,6 +5,8 @@ use phf::phf_map;
 use serde::de::IntoDeserializer;
 use serde::Deserialize;
 
+pub const UNSPECIFIED: IpAddr = IpAddr::V6(Ipv6Addr::UNSPECIFIED);
+
 pub static PROTOCOL_TO_STRING: phf::Map<u8, &'static str> = phf_map! {
     1u8 => "ICMP",
     6u8 => "TCP",
@@ -33,12 +35,5 @@ where
     match opt {
         None | Some("") => Ok(None),
         Some(s) => T::deserialize(s.into_deserializer()).map(Some),
-    }
-}
-
-pub fn ipv6_from_ip(addr: IpAddr) -> Ipv6Addr {
-    match addr {
-        IpAddr::V4(x) => x.to_ipv6_mapped(),
-        IpAddr::V6(x) => x,
     }
 }

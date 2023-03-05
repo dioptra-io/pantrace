@@ -1,17 +1,11 @@
-use std::net::Ipv6Addr;
-
 use chrono::{TimeZone, Utc};
 
 use crate::formats::atlas::{
-    AtlasIcmpExt,
-    AtlasIcmpExtMplsData,
-    AtlasIcmpExtObj,
-    AtlasTraceroute,
-    AtlasTracerouteHop,
+    AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
 use crate::formats::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
-use crate::utils::{ipv6_from_ip, PROTOCOL_FROM_STRING};
+use crate::utils::{PROTOCOL_FROM_STRING, UNSPECIFIED};
 
 impl From<&AtlasTraceroute> for Traceroute {
     fn from(traceroute: &AtlasTraceroute) -> Traceroute {
@@ -21,12 +15,8 @@ impl From<&AtlasTraceroute> for Traceroute {
             start_time: traceroute.timestamp,
             end_time: traceroute.endtime,
             protocol: PROTOCOL_FROM_STRING[&traceroute.proto],
-            src_addr: traceroute
-                .src_addr
-                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_ip),
-            dst_addr: traceroute
-                .dst_addr
-                .map_or(Ipv6Addr::UNSPECIFIED, ipv6_from_ip),
+            src_addr: traceroute.src_addr.unwrap_or(UNSPECIFIED),
+            dst_addr: traceroute.dst_addr.unwrap_or(UNSPECIFIED),
             flows: vec![TracerouteFlow {
                 src_port: traceroute.paris_id,
                 dst_port: 0,
@@ -65,7 +55,7 @@ impl From<(&AtlasTracerouteReply, u8)> for TracerouteReply {
                 .iter()
                 .flat_map(<Vec<MplsEntry>>::from)
                 .collect(),
-            addr: reply.from.map_or(Ipv6Addr::from(0), ipv6_from_ip),
+            addr: reply.from.unwrap_or(UNSPECIFIED),
             icmp_type: reply.icmp_type(),
             icmp_code: reply.icmp_code(),
             rtt: reply.rtt,

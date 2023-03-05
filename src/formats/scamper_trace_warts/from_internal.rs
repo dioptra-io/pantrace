@@ -1,10 +1,5 @@
 use warts::{
-    Address,
-    Timeval,
-    TraceProbe,
-    TraceStopReason,
-    TraceType,
-    Traceroute as WartsTraceroute,
+    Address, Timeval, TraceProbe, TraceStopReason, TraceType, Traceroute as WartsTraceroute,
 };
 
 use crate::formats::internal::{Traceroute, TracerouteReply};
@@ -16,7 +11,7 @@ impl From<&Traceroute> for Vec<ScamperTraceWarts> {
             .flows
             .iter()
             .map(|flow| {
-                let mut t = WartsTraceroute {
+                let t = WartsTraceroute {
                     length: 0,
                     flags: Default::default(),
                     param_length: None,
@@ -54,11 +49,10 @@ impl From<&Traceroute> for Vec<ScamperTraceWarts> {
                     hops: flow.replies.iter().map(|reply| reply.into()).collect(),
                     eof: 0,
                 };
-                t.fixup();
                 ScamperTraceWarts {
                     cycle_id: traceroute.measurement_id_int() as u32, // TODO: proper handling / round-tripping
                     monitor_name: traceroute.agent_id.to_string(),
-                    traceroute: t,
+                    traceroute: t.finalize(),
                 }
             })
             .collect()
@@ -67,7 +61,7 @@ impl From<&Traceroute> for Vec<ScamperTraceWarts> {
 
 impl From<&TracerouteReply> for TraceProbe {
     fn from(reply: &TracerouteReply) -> Self {
-        let mut tp = TraceProbe {
+        let tp = TraceProbe {
             flags: Default::default(),
             param_length: None,
             addr_id: None,
@@ -92,7 +86,6 @@ impl From<&TracerouteReply> for TraceProbe {
             addr: Some(Address::from(reply.addr)),
             tx: Some(Timeval::from(reply.send_timestamp().naive_utc())),
         };
-        tp.fixup();
-        tp
+        tp.finalize()
     }
 }

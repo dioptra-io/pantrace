@@ -32,7 +32,7 @@ impl<W: Write> TracerouteWriter for ScamperTraceWartsWriter<W> {
         let list_name = CString::new("TODO").unwrap();
         let hostname = CString::new("TODO").unwrap();
 
-        let mut list = List {
+        let list = List {
             length: 0,
             list_id: 1, // TODO
             list_id_human: 0,
@@ -42,11 +42,10 @@ impl<W: Write> TracerouteWriter for ScamperTraceWartsWriter<W> {
             description: Some(list_name),
             monitor_name: None,
         };
-        list.fixup();
-        let bytes = Object::List(list).to_bytes()?;
+        let bytes = Object::List(list.finalize()).to_bytes()?;
         self.output.write_all(&bytes)?;
 
-        let mut cycle_start = CycleStart {
+        let cycle_start = CycleStart {
             length: 0,
             cycle_id: 1, // TODO
             list_id: 1,  // TODO
@@ -57,22 +56,20 @@ impl<W: Write> TracerouteWriter for ScamperTraceWartsWriter<W> {
             stop_time: None,
             hostname: Some(hostname),
         };
-        cycle_start.fixup();
-        let bytes = Object::CycleStart(cycle_start).to_bytes()?;
+        let bytes = Object::CycleStart(cycle_start.finalize()).to_bytes()?;
         self.output.write_all(&bytes)?;
 
         Ok(())
     }
 
     fn write_epilogue(&mut self) -> anyhow::Result<()> {
-        let mut cycle_stop = CycleStop {
+        let cycle_stop = CycleStop {
             length: 0,
             cycle_id: 1,                              // TODO
             stop_time: Utc::now().timestamp() as u32, // TODO
             flags: Default::default(),
         };
-        cycle_stop.fixup();
-        let bytes = Object::CycleStop(cycle_stop).to_bytes()?;
+        let bytes = Object::CycleStop(cycle_stop.finalize()).to_bytes()?;
         self.output.write_all(&bytes)?;
         Ok(())
     }

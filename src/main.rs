@@ -5,10 +5,10 @@ use std::process::exit;
 use anyhow::{Context, Result};
 use clap::Parser;
 use pantrace::formats::atlas::{AtlasReader, AtlasWriter};
-use pantrace::formats::internal::{InternalReader, InternalWriter};
+use pantrace::formats::internal::{InternalReader, InternalWriter, Traceroute};
 use pantrace::formats::iris::{IrisReader, IrisWriter};
 use pantrace::formats::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
-use pantrace::traits::{TracerouteReader, TracerouteWriter};
+use pantrace::traits::TracerouteWriter;
 
 #[derive(Clone, Debug, PartialEq, clap::ValueEnum)]
 enum Format {
@@ -62,7 +62,7 @@ fn main() -> Result<()> {
         None => Box::new(stdout().lock()),
     };
 
-    let reader: Box<dyn TracerouteReader> = match args.from {
+    let reader: Box<dyn Iterator<Item = Result<Traceroute>>> = match args.from {
         Format::Atlas => Box::new(AtlasReader::new(input)),
         Format::Internal => Box::new(InternalReader::new(input)),
         Format::Iris => Box::new(IrisReader::new(input)),
