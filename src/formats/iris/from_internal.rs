@@ -1,12 +1,7 @@
-use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteHop};
 use crate::formats::iris::{IrisFlow, IrisMplsEntry, IrisReply, IrisTraceroute};
 
-// TODO: Update docstrings (TracerouteReply -> Traceroute).
-// TODO: Update Iris query for multiple flows.
-
 impl From<&Traceroute> for IrisTraceroute {
-    /// Build an [IrisTraceroute] from an array of [TracerouteReply].
-    /// There must be at-least one reply, and all replies must have the same flow identifier.
     fn from(traceroute: &Traceroute) -> Self {
         IrisTraceroute {
             measurement_uuid: traceroute.measurement_id.clone(),
@@ -22,27 +17,35 @@ impl From<&Traceroute> for IrisTraceroute {
                 .map(|flow| IrisFlow {
                     probe_src_port: flow.src_port,
                     probe_dst_port: flow.dst_port,
-                    replies: flow.replies.iter().map(|reply| reply.into()).collect(),
+                    replies: flow.hops.iter().flat_map(<Vec<IrisReply>>::from).collect(),
                 })
                 .collect(),
         }
     }
 }
 
-impl From<&TracerouteReply> for IrisReply {
-    fn from(reply: &TracerouteReply) -> Self {
-        IrisReply(
-            reply.timestamp,
-            reply.probe_ttl,
-            reply.quoted_ttl,
-            reply.icmp_type,
-            reply.icmp_code,
-            reply.ttl,
-            reply.size,
-            reply.mpls_labels.iter().map(|entry| entry.into()).collect(),
-            reply.addr,
-            (reply.rtt * 10.0) as u16,
-        )
+impl From<&TracerouteHop> for Vec<IrisReply> {
+    fn from(hop: &TracerouteHop) -> Self {
+        hop.probes
+            .iter()
+            // Iris does not store probes without replies
+            .filter(|probe| probe.reply.is_some())
+            .map(|probe| {
+                let reply = probe.reply.as_ref().unwrap();
+                IrisReply(
+                    reply.timestamp,
+                    hop.ttl,
+                    reply.quoted_ttl,
+                    reply.icmp_type,
+                    reply.icmp_code,
+                    reply.ttl,
+                    reply.size,
+                    reply.mpls_labels.iter().map(|entry| entry.into()).collect(),
+                    reply.addr,
+                    (reply.rtt * 10.0) as u16,
+                )
+            })
+            .collect()
     }
 }
 

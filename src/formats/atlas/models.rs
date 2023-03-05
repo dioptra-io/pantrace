@@ -4,7 +4,7 @@ use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{default_ipaddr, empty_string_as_none};
+use crate::utils::empty_string_as_none;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct AtlasTraceroute {
@@ -13,7 +13,7 @@ pub struct AtlasTraceroute {
     pub dst_name: String,
     #[serde(with = "ts_seconds")]
     pub endtime: DateTime<Utc>,
-    #[serde(default = "default_ipaddr", deserialize_with = "empty_string_as_none")]
+    #[serde(deserialize_with = "empty_string_as_none")]
     pub from: Option<IpAddr>,
     pub msm_id: u64,
     pub msm_name: String,
@@ -23,7 +23,7 @@ pub struct AtlasTraceroute {
     pub proto: String,
     pub result: Vec<AtlasTracerouteHop>,
     pub size: u16,
-    #[serde(default = "default_ipaddr", deserialize_with = "empty_string_as_none")]
+    #[serde(deserialize_with = "empty_string_as_none")]
     pub src_addr: Option<IpAddr>,
     #[serde(with = "ts_seconds")]
     pub timestamp: DateTime<Utc>,
@@ -49,7 +49,7 @@ pub struct AtlasTracerouteReply {
     pub size: u16,
     #[serde(default)]
     pub ttl: u8,
-    #[serde(skip)]
+    #[serde(default)]
     pub icmpext: Vec<AtlasIcmpExt>,
 }
 

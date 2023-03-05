@@ -6,10 +6,6 @@ use serde::Deserialize;
 
 pub const UNSPECIFIED: IpAddr = IpAddr::V6(Ipv6Addr::UNSPECIFIED);
 
-pub fn default_ipaddr() -> Option<IpAddr> {
-    None
-}
-
 pub fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
 where
     D: serde::Deserializer<'de>,

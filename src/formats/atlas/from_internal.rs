@@ -4,50 +4,52 @@ use crate::formats::atlas::{
     AtlasIcmpExt, AtlasIcmpExtMplsData, AtlasIcmpExtObj, AtlasTraceroute, AtlasTracerouteHop,
     AtlasTracerouteReply,
 };
-use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
+use crate::formats::internal::{MplsEntry, Traceroute, TracerouteHop, TracerouteReply};
 
 impl From<&Traceroute> for Vec<AtlasTraceroute> {
-    /// Build an AtlasTraceroute from an array of TracerouteReply.
-    /// There must be at-least one reply, and all replies must have the same flow identifier.
     fn from(traceroute: &Traceroute) -> Vec<AtlasTraceroute> {
         traceroute
             .flows
             .iter()
-            .map(|flow| {
-                AtlasTraceroute {
-                    af: traceroute.af(),
-                    dst_addr: Some(traceroute.dst_addr),
-                    dst_name: traceroute.dst_addr.to_string(),
-                    endtime: traceroute.end_time,
-                    from: Some(traceroute.src_addr),
-                    msm_id: traceroute.measurement_id_int(),
-                    msm_name: traceroute.measurement_id.clone(),
-                    paris_id: flow.src_port,
-                    prb_id: traceroute.agent_id_int(),
-                    proto: traceroute.protocol.to_string(),
-                    result: flow
-                        .replies_by_ttl()
-                        .values()
-                        .map(|replies| replies.deref().into())
-                        .collect(),
-                    size: 0, // TODO: size of the *probe*.
-                    src_addr: Some(traceroute.src_addr),
-                    timestamp: traceroute.start_time,
-                    kind: "traceroute".to_string(),
-                }
+            .map(|flow| AtlasTraceroute {
+                af: traceroute.af(),
+                dst_addr: Some(traceroute.dst_addr),
+                dst_name: traceroute.dst_addr.to_string(),
+                endtime: traceroute.end_time,
+                from: traceroute.src_addr_public,
+                msm_id: traceroute.measurement_id_int(),
+                msm_name: traceroute.measurement_name.to_string(),
+                paris_id: flow.src_port,
+                prb_id: traceroute.agent_id_int(),
+                proto: traceroute.protocol.to_string(),
+                result: flow.hops.iter().map(|hop| hop.into()).collect(),
+                // Retrieve the size of the first probe.
+                size: flow
+                    .hops
+                    .iter()
+                    .flat_map(|hop| &hop.probes)
+                    .map(|probe| probe.size)
+                    .next()
+                    .unwrap_or(0),
+                src_addr: Some(traceroute.src_addr),
+                timestamp: traceroute.start_time,
+                kind: "traceroute".to_string(),
             })
             .collect()
     }
 }
 
-impl From<&[TracerouteReply]> for AtlasTracerouteHop {
-    fn from(replies: &[TracerouteReply]) -> Self {
-        // TODO: assert that all replies are for the same hop?
-        let ref_reply = &replies[0];
+impl From<&TracerouteHop> for AtlasTracerouteHop {
+    fn from(hop: &TracerouteHop) -> Self {
         AtlasTracerouteHop {
-            hop: ref_reply.probe_ttl,
-            error: None,
-            result: replies.iter().map(|reply| reply.into()).collect(),
+            hop: hop.ttl,
+            error: None, // TODO: implement by looking at Destination Unreachable replies.
+            result: hop
+                .probes
+                .iter()
+                .flat_map(|probe| &probe.reply)
+                .map(|reply| reply.into())
+                .collect(),
         }
     }
 }
@@ -55,11 +57,19 @@ impl From<&[TracerouteReply]> for AtlasTracerouteHop {
 impl From<&TracerouteReply> for AtlasTracerouteReply {
     fn from(reply: &TracerouteReply) -> Self {
         AtlasTracerouteReply {
-            from: Some(reply.addr),
+            from: if reply.addr.is_unspecified() {
+                None
+            } else {
+                Some(reply.addr)
+            },
             rtt: reply.rtt,
             size: reply.size,
             ttl: reply.ttl,
-            icmpext: vec![reply.mpls_labels.deref().into()],
+            icmpext: if reply.mpls_labels.is_empty() {
+                vec![]
+            } else {
+                vec![reply.mpls_labels.deref().into()]
+            },
         }
     }
 }
