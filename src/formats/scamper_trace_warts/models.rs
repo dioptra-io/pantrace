@@ -1,6 +1,6 @@
 use warts::Traceroute as WartsTraceroute;
 
-pub struct WartsTracerouteWithMeta {
+pub struct ScamperTraceWarts {
     pub cycle_id: u32,
     pub monitor_name: String,
     pub traceroute: WartsTraceroute,

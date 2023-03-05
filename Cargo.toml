@@ -2,15 +2,23 @@
 name = "pantrace"
 version = "0.5.1"
 description = "Convert between traceroute formats."
-license = "MIT"
-authors = ["Maxime Mouchet <maxime.mouchet@lip6.fr>"]
 repository = "https://github.com/dioptra-io/pantrace/"
+license = "MIT"
+authors = [
+    "Maxime Mouchet <maxime.mouchet@lip6.fr>",
+    "Matthieu Gouel <matthieu.gouel@lip6.fr>"
+]
+categories = [
+    "command-line-utilities",
+    "network-programming",
+]
+keywords = ["traceroute"]
 edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
-clap = { version = "3.1.12", features = ["derive"] }
+clap = { version = "4.1.8", features = ["derive"] }
 phf = { version = "0.11", features = ["macros"] }
 seahash = "4.1.0"
 serde = { version = "1.0", features = ["derive"] }

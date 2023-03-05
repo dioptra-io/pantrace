@@ -17,7 +17,7 @@ pub struct Traceroute {
     pub agent_id: String,
     pub start_time: DateTime<Utc>,
     pub end_time: DateTime<Utc>,
-    // TODO: Enum for protocol.
+    // TODO: Enum for protocol and replace phf_map?
     pub protocol: u8,
     pub src_addr: Ipv6Addr,
     pub dst_addr: Ipv6Addr,

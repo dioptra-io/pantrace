@@ -5,10 +5,10 @@ use chrono::{Duration, TimeZone, Utc};
 use warts::{Address, Timeval, TraceProbe, TraceType};
 
 use crate::formats::internal::{Traceroute, TracerouteFlow, TracerouteReply};
-use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 
-impl From<&WartsTracerouteWithMeta> for Traceroute {
-    fn from(meta: &WartsTracerouteWithMeta) -> Self {
+impl From<&ScamperTraceWarts> for Traceroute {
+    fn from(meta: &ScamperTraceWarts) -> Self {
         Traceroute {
             measurement_id: meta.cycle_id.to_string(),
             agent_id: meta.monitor_name.to_string(),

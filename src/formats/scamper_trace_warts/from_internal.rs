@@ -8,9 +8,9 @@ use warts::{
 };
 
 use crate::formats::internal::{Traceroute, TracerouteReply};
-use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 
-impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
+impl From<&Traceroute> for Vec<ScamperTraceWarts> {
     fn from(traceroute: &Traceroute) -> Self {
         traceroute
             .flows
@@ -55,7 +55,7 @@ impl From<&Traceroute> for Vec<WartsTracerouteWithMeta> {
                     eof: 0,
                 };
                 t.fixup();
-                WartsTracerouteWithMeta {
+                ScamperTraceWarts {
                     cycle_id: traceroute.measurement_id_int() as u32, // TODO: proper handling / round-tripping
                     monitor_name: traceroute.agent_id.to_string(),
                     traceroute: t,

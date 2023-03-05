@@ -3,14 +3,14 @@ use std::io::{stdin, stdout, BufRead, BufReader, Write};
 use std::process::exit;
 
 use anyhow::{Context, Result};
-use clap::{AppSettings, ArgEnum, Parser};
+use clap::Parser;
 use pantrace::formats::atlas::{AtlasReader, AtlasWriter};
 use pantrace::formats::internal::{InternalReader, InternalWriter};
 use pantrace::formats::iris::{IrisReader, IrisWriter};
 use pantrace::formats::scamper_trace_warts::{ScamperTraceWartsReader, ScamperTraceWartsWriter};
 use pantrace::traits::{TracerouteReader, TracerouteWriter};
 
-#[derive(ArgEnum, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, clap::ValueEnum)]
 enum Format {
     Atlas,
     Internal,
@@ -20,7 +20,6 @@ enum Format {
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 struct Args {
     /// Input file (stdin if not specified).
     #[clap(short, long)]
@@ -29,10 +28,10 @@ struct Args {
     #[clap(short, long)]
     output: Option<String>,
     /// Input format.
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long)]
     from: Format,
     /// Output format.
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long)]
     to: Format,
     /// Output start/end markers (e.g. Warts CycleStart/CycleStop).
     #[clap(short, long)]

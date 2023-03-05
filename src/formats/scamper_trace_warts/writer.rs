@@ -5,7 +5,7 @@ use chrono::Utc;
 use warts::{CycleStart, CycleStop, DekuContainerWrite, List, Object};
 
 use crate::formats::internal::Traceroute;
-use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 use crate::traits::TracerouteWriter;
 
 pub struct ScamperTraceWartsWriter<W: Write> {
@@ -20,7 +20,7 @@ impl<W: Write> ScamperTraceWartsWriter<W> {
 
 impl<W: Write> TracerouteWriter for ScamperTraceWartsWriter<W> {
     fn write_traceroute(&mut self, traceroute: &Traceroute) -> anyhow::Result<()> {
-        let traceroutes: Vec<WartsTracerouteWithMeta> = traceroute.into();
+        let traceroutes: Vec<ScamperTraceWarts> = traceroute.into();
         for traceroute in traceroutes {
             let bytes = Object::Traceroute(traceroute.traceroute).to_bytes()?;
             self.output.write_all(&bytes)?;

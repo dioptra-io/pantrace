@@ -3,12 +3,12 @@ use std::io::Read;
 use warts::{Address, Object};
 
 use crate::formats::internal::Traceroute;
-use crate::formats::scamper_trace_warts::models::WartsTracerouteWithMeta;
+use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 
 pub struct ScamperTraceWartsReader {
     cycle_id: u32,
     monitor_name: String,
-    traceroutes: Vec<WartsTracerouteWithMeta>,
+    traceroutes: Vec<ScamperTraceWarts>,
 }
 
 impl ScamperTraceWartsReader {
@@ -60,7 +60,7 @@ impl ScamperTraceWartsReader {
                 object.dereference_with_table(&table);
             }
             if let Object::Traceroute(traceroute) = object {
-                reader.traceroutes.push(WartsTracerouteWithMeta {
+                reader.traceroutes.push(ScamperTraceWarts {
                     cycle_id: reader.cycle_id,
                     monitor_name: reader.monitor_name.to_string(),
                     traceroute,
