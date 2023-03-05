@@ -9,14 +9,6 @@ Pantrace converts between traceroute formats, in the same way as [Pandoc](https:
 
 Each format needs to implement only two conversions: to and from the internal format.
 
-## Formats
-
-- `atlas`: RIPE Atlas JSONL (read/write)
-- `flat`: JSONL with one document per reply (write-only)
-- `internal`: Pantrace internal format (read/write)
-- `iris`: Iris JSONL format (read/write)
-- `scamper-trace-warts`: Scamper traceroute in warts format (read/write)
-
 ## Quickstart
 
 ### Cargo
@@ -50,3 +42,28 @@ cat example.ndjson | pantrace --standalone --from atlas --to scamper-trace-warts
 # Convert from a file to a file
 pantrace --standalone --from atlas --to scamper-trace-warts --input example.ndjson --output example.warts
 ```
+
+
+## Formats
+
+- `atlas`: RIPE Atlas JSONL (read/write)
+- `flat`: JSONL with one document per reply (write-only)
+- `internal`: Pantrace internal format (read/write)
+- `iris`: Iris JSONL format (read/write)
+- `scamper-trace-warts`: Scamper traceroute in warts format (read/write)
+
+### Implementing a new format
+
+To add a new `CustomFormat` to the pantrace CLI ([`main.rs`](src/main.rs)), two structures must be implemented:
+- `CustomTracerouteReader` which implements the `Iterator<Item = Result<Traceroute>>` trait.
+- `CustomTracerouteWriter` which implements the [`TracerouteWriter`](src/traits.rs) trait, and in particular the
+  `fn write_traceroute(&mut self, traceroute: &Traceroute) -> Result<()>` function
+where [`Traceroute`](src/formats/internal/models.rs) is pantrace's internal traceroute format.
+
+The conversion between `CustomFormat` and `Traceroute` can be implemented in any way, but the current formats are
+implemented as follows:
+- `CustomFormat` to `Traceroute` conversion in a `to_internal` module:
+  - `impl From<CustomFormat> for Traceroute { ... }`
+- `CustomFormat` from `Traceroute` conversion in a `from_internal` module
+  - `impl From<Traceroute> for CustomFormat { ... }`
+  - or `impl From<Traceroute> for Vec<CustomFormat> { ... }` if `CustomFormat` is a single path traceroute format
