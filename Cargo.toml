@@ -1,6 +1,6 @@
 [package]
 name = "pantrace"
-version = "0.6.0"
+version = "0.6.1"
 description = "Convert between traceroute formats."
 repository = "https://github.com/dioptra-io/pantrace/"
 license = "MIT"
