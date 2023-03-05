@@ -15,7 +15,7 @@
         packages = {
           pantrace = pkgs.rustPlatform.buildRustPackage {
             pname = "pantrace";
-            version = "0.6.1";
+            version = "0.6.2";
             src = self;
             doCheck = false;
             cargoLock = { lockFile = ./Cargo.lock; };
