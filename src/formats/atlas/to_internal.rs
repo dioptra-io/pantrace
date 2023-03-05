@@ -5,7 +5,7 @@ use crate::formats::atlas::{
     AtlasTracerouteReply,
 };
 use crate::formats::internal::{MplsEntry, Traceroute, TracerouteFlow, TracerouteReply};
-use crate::utils::{PROTOCOL_FROM_STRING, UNSPECIFIED};
+use crate::utils::UNSPECIFIED;
 
 impl From<&AtlasTraceroute> for Traceroute {
     fn from(traceroute: &AtlasTraceroute) -> Traceroute {
@@ -14,7 +14,7 @@ impl From<&AtlasTraceroute> for Traceroute {
             agent_id: traceroute.prb_id.to_string(),
             start_time: traceroute.timestamp,
             end_time: traceroute.endtime,
-            protocol: PROTOCOL_FROM_STRING[&traceroute.proto],
+            protocol: traceroute.proto.parse().unwrap(),
             src_addr: traceroute.src_addr.unwrap_or(UNSPECIFIED),
             dst_addr: traceroute.dst_addr.unwrap_or(UNSPECIFIED),
             flows: vec![TracerouteFlow {

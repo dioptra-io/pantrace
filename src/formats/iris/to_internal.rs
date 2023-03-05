@@ -8,7 +8,7 @@ impl From<&IrisTraceroute> for Traceroute {
             agent_id: traceroute.agent_uuid.to_string(),
             start_time: traceroute.traceroute_start,
             end_time: traceroute.traceroute_end,
-            protocol: traceroute.probe_protocol,
+            protocol: traceroute.probe_protocol.try_into().unwrap(),
             src_addr: traceroute.probe_src_addr,
             dst_addr: traceroute.probe_dst_addr,
             flows: traceroute.flows.iter().map(|flow| flow.into()).collect(),

@@ -5,7 +5,6 @@ use crate::formats::atlas::{
     AtlasTracerouteReply,
 };
 use crate::formats::internal::{MplsEntry, Traceroute, TracerouteReply};
-use crate::utils::PROTOCOL_TO_STRING;
 
 impl From<&Traceroute> for Vec<AtlasTraceroute> {
     /// Build an AtlasTraceroute from an array of TracerouteReply.
@@ -25,7 +24,7 @@ impl From<&Traceroute> for Vec<AtlasTraceroute> {
                     msm_name: traceroute.measurement_id.clone(),
                     paris_id: flow.src_port,
                     prb_id: traceroute.agent_id_int(),
-                    proto: PROTOCOL_TO_STRING[&traceroute.protocol].to_string(),
+                    proto: traceroute.protocol.to_string(),
                     result: flow
                         .replies_by_ttl()
                         .values()

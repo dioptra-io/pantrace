@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 use std::net::IpAddr;
 use std::ops::Sub;
+use std::str::FromStr;
 
 use chrono::{DateTime, Duration, Utc};
 use seahash::hash;
@@ -19,7 +21,7 @@ pub struct Traceroute {
     pub start_time: DateTime<Utc>,
     pub end_time: DateTime<Utc>,
     // TODO: Enum for protocol and replace phf_map?
-    pub protocol: u8,
+    pub protocol: Protocol,
     pub src_addr: IpAddr,
     pub dst_addr: IpAddr,
     pub flows: Vec<TracerouteFlow>,
@@ -96,5 +98,52 @@ impl TracerouteReply {
     pub fn send_timestamp(&self) -> DateTime<Utc> {
         self.timestamp
             .sub(Duration::microseconds((self.rtt * 1000.0) as i64))
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum Protocol {
+    ICMP,
+    ICMPv6,
+    TCP,
+    UDP,
+}
+
+impl Display for Protocol {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Protocol::ICMP => write!(f, "ICMP"),
+            Protocol::ICMPv6 => write!(f, "ICMP6"),
+            Protocol::TCP => write!(f, "TCP"),
+            Protocol::UDP => write!(f, "UDP"),
+        }
+    }
+}
+
+impl FromStr for Protocol {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "ICMP" => Ok(Protocol::ICMP),
+            "ICMP6" => Ok(Protocol::ICMP),
+            "TCP" => Ok(Protocol::ICMP),
+            "UDP" => Ok(Protocol::ICMP),
+            _ => Err(format!("Unsupported protocol: {s}")),
+        }
+    }
+}
+
+impl TryFrom<u8> for Protocol {
+    type Error = String;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(Protocol::ICMP),
+            6 => Ok(Protocol::TCP),
+            17 => Ok(Protocol::UDP),
+            58 => Ok(Protocol::ICMPv6),
+            _ => Err(format!("Unsupported protocol: {value}")),
+        }
     }
 }

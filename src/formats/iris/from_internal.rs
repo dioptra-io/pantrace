@@ -13,7 +13,7 @@ impl From<&Traceroute> for IrisTraceroute {
             agent_uuid: traceroute.agent_id.clone(),
             traceroute_start: traceroute.start_time,
             traceroute_end: traceroute.end_time,
-            probe_protocol: traceroute.protocol,
+            probe_protocol: traceroute.protocol as u8,
             probe_src_addr: traceroute.src_addr,
             probe_dst_addr: traceroute.dst_addr,
             flows: traceroute

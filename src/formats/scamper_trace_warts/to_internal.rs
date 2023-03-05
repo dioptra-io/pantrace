@@ -3,7 +3,7 @@ use std::ops::Add;
 use chrono::{Duration, TimeZone, Utc};
 use warts::{Timeval, TraceProbe, TraceType};
 
-use crate::formats::internal::{Traceroute, TracerouteFlow, TracerouteReply};
+use crate::formats::internal::{Protocol, Traceroute, TracerouteFlow, TracerouteReply};
 use crate::formats::scamper_trace_warts::models::ScamperTraceWarts;
 use crate::utils::UNSPECIFIED;
 
@@ -17,11 +17,7 @@ impl From<&ScamperTraceWarts> for Traceroute {
             //     .timestamp_opt(traceroute.start_time.map_or(|t| t.seconds, 0) as i64, 0)
             //     .unwrap(),
             end_time: Default::default(), // TODO
-            protocol: meta
-                .traceroute
-                .trace_type
-                .as_ref()
-                .map_or(0, protocol_number),
+            protocol: meta.traceroute.trace_type.as_ref().unwrap().into(),
             src_addr: meta
                 .traceroute
                 .src_addr
@@ -66,14 +62,16 @@ impl From<&TraceProbe> for TracerouteReply {
     }
 }
 
-fn protocol_number(trace_type: &TraceType) -> u8 {
+impl From<&TraceType> for Protocol {
     // TODO: IPv6
-    match trace_type {
-        TraceType::ICMPEcho => 1,
-        TraceType::UDP => 17,
-        TraceType::TCP => 6,
-        TraceType::ICMPEchoParis => 1,
-        TraceType::UDPParis => 17,
-        TraceType::TCPAck => 6,
+    fn from(value: &TraceType) -> Self {
+        match value {
+            TraceType::ICMPEcho => Protocol::ICMP,
+            TraceType::UDP => Protocol::UDP,
+            TraceType::TCP => Protocol::TCP,
+            TraceType::ICMPEchoParis => Protocol::ICMP,
+            TraceType::UDPParis => Protocol::UDP,
+            TraceType::TCPAck => Protocol::TCP,
+        }
     }
 }
