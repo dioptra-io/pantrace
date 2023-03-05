@@ -49,7 +49,7 @@ pub struct AtlasTracerouteReply {
     pub size: u16,
     #[serde(default)]
     pub ttl: u8,
-    #[serde(default)]
+    #[serde(skip)]
     pub icmpext: Vec<AtlasIcmpExt>,
 }
 
